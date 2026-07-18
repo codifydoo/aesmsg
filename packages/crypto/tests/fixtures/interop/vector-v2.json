@@ -1,0 +1,17 @@
+{
+  "_comment": "aesmsg v2-AAD interop vector. Regenerated only when the suite, wire format, or v2 AAD encoding changes. Do not edit by hand.",
+  "suite": "X25519-HKDF-SHA256 + HKDF-SHA256 + AES-256-GCM, mode_base",
+  "wire_version": 1,
+  "wire_suite_byte": 1,
+  "aad_version": 2,
+  "ikm_hex": "4343434343434343434343434343434343434343434343434343434343434343",
+  "recipient_pubkey_raw_hex": "cf8e69a67350b35aafe9af08ffd27b43909fd0a7c58666f3cc2ecf19de6fcf16",
+  "aad_context": {
+    "linkId": "interop-vec2-16b",
+    "expiresAtMs": 1700086400000,
+    "maxOpens": 1
+  },
+  "aad_encoded_hex": "0201010010696e7465726f702d766563322d313662f5a215006b6d36205cfdbdfc34402ec09f092096a9f50d928eebcdb453de78cd0000018bd50bc40000000001",
+  "plaintext_utf8": "hello from v2 interop",
+  "ciphertext_blob_hex": "0101c5c4aea41ed1396281678851a617c026205b9836e1e667452d6c87a41f208920aabefccbbd66975356c7fea3d8d10b2c7821df49aa833c157d6acea6b33862a6013324daa2"
+}

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 168" width="576" height="168" role="img" aria-label="aesmsg">
+  
+  <g transform="translate(-16.24 0.80) scale(1.640)" fill="none" stroke="#cfbcff" stroke-width="8" stroke-linecap="butt">
+    <circle cx="46" cy="50" r="26"></circle>
+    <line x1="72" y1="24" x2="72" y2="76"></line>
+  </g>
+  <text x="142" y="132" font-family="Inter, sans-serif" font-weight="500" font-size="120" letter-spacing="-4.20" fill="#cfbcff">aesmsg</text>
+</svg>

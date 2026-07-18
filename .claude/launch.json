@@ -1,0 +1,19 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "web",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["dev"],
+      "port": 3000,
+      "autoPort": true
+    },
+    {
+      "name": "web-3001",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "web", "exec", "next", "dev", "--turbopack", "--port", "3001"],
+      "port": 3001,
+      "autoPort": false
+    }
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "name": "@aesmsg/mobile",
+  "version": "0.0.0",
+  "private": true,
+  "license": "Apache-2.0",
+  "main": "index.ts",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo run:android",
+    "android:run": "AESMSG_API_BASE_URL=http://10.0.2.2:4000 expo run:android",
+    "ios": "expo run:ios",
+    "ios:run": "expo run:ios",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@aesmsg/crypto": "workspace:*",
+    "@expo/vector-icons": "^15.1.1",
+    "@react-native-community/datetimepicker": "9.1.0",
+    "expo": "56.0.8",
+    "expo-application": "~56.0.3",
+    "expo-build-properties": "~56.0.16",
+    "expo-camera": "~56.0.7",
+    "expo-clipboard": "~56.0.3",
+    "expo-constants": "~56.0.16",
+    "expo-crypto": "~56.0.4",
+    "expo-document-picker": "~56.0.4",
+    "expo-file-system": "~56.0.7",
+    "expo-font": "~56.0.5",
+    "expo-iap": "^4.3.1",
+    "expo-image-picker": "~56.0.15",
+    "expo-linking": "~56.0.13",
+    "expo-local-authentication": "~56.0.4",
+    "expo-notifications": "~56.0.15",
+    "expo-screen-capture": "~56.0.4",
+    "expo-secure-store": "~56.0.4",
+    "expo-sharing": "~56.0.15",
+    "expo-splash-screen": "~56.0.10",
+    "expo-standard-web-crypto": "~56.0.3",
+    "expo-status-bar": "~56.0.4",
+    "qrcode": "^1.5.4",
+    "react": "19.2.3",
+    "react-native": "0.85.3",
+    "react-native-nitro-modules": "^0.35.9",
+    "react-native-quick-base64": "^3.0.0",
+    "react-native-quick-crypto": "^1.1.5",
+    "react-native-safe-area-context": "~5.7.0"
+  },
+  "devDependencies": {
+    "@aesmsg/design-tokens": "workspace:*",
+    "@babel/core": "^7.29.0",
+    "@types/node": "^22.10.0",
+    "@types/qrcode": "^1.5.6",
+    "@types/react": "^19.0.0",
+    "babel-preset-expo": "~56.0.14",
+    "expo-modules-autolinking": "~56.0.14",
+    "typescript": "^5.7.0",
+    "vitest": "^3.2.4"
+  },
+  "expo": {
+    "install": {
+      "exclude": [
+        "@types/react",
+        "typescript"
+      ]
+    }
+  }
+}

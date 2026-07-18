@@ -1,0 +1,126 @@
+{
+  "appPolicies" : {
+    "eula" : "",
+    "policies" : [
+      {
+        "locale" : "en_US",
+        "policyText" : "",
+        "policyURL" : ""
+      }
+    ]
+  },
+  "identifier" : "56C4D01D",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+
+  ],
+  "settings" : {
+    "_askToBuyEnabled" : false,
+    "_billingGracePeriodEnabled" : false,
+    "_billingIssuesEnabled" : false,
+    "_disableDialogs" : false,
+    "_failTransactionsEnabled" : false,
+    "_locale" : "en_US",
+    "_renewalBillingIssuesEnabled" : false,
+    "_storefront" : "USA",
+    "_storeKitErrors" : [
+
+    ],
+    "_timeRate" : 0
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "0884D1CB",
+      "localizations" : [
+
+      ],
+      "name" : "aesmsg Pro",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [
+
+          ],
+          "billingPlans" : [
+            {
+              "billingPlanType" : "BILLED_UPFRONT",
+              "commitmentDisplayPrice" : "0.99",
+              "displayPrice" : "0.99",
+              "internalID" : "02E4E018",
+              "isEnabled" : true
+            }
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "3.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "E4A5BB6C",
+          "introductoryOffers" : [
+
+          ],
+          "localizations" : [
+            {
+              "description" : "",
+              "displayName" : "",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.aesmsg.app.pro.monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "aesmsg Pro Monthly",
+          "subscriptionGroupID" : "0884D1CB",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "billingPlans" : [
+            {
+              "billingPlanType" : "BILLED_UPFRONT",
+              "commitmentDisplayPrice" : "0.99",
+              "displayPrice" : "0.99",
+              "internalID" : "A0ADAC02",
+              "isEnabled" : true
+            }
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "37.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "5B5F9FE6",
+          "introductoryOffers" : [
+
+          ],
+          "localizations" : [
+            {
+              "description" : "",
+              "displayName" : "",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.aesmsg.app.pro.annual",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "aesmsg Pro Annual",
+          "subscriptionGroupID" : "0884D1CB",
+          "type" : "RecurringSubscription",
+          "winbackOffers" : [
+
+          ]
+        }
+      ]
+    }
+  ],
+  "version" : {
+    "major" : 5,
+    "minor" : 0
+  }
+}

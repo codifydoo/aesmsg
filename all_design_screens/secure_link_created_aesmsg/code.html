@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Geist:wght@600;700;800&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-variant": "#36343a",
+                    "on-surface-variant": "#cbc4d2",
+                    "on-secondary-fixed": "#1f1635",
+                    "inverse-surface": "#e6e0e9",
+                    "on-surface": "#e6e0e9",
+                    "surface": "#141218",
+                    "on-background": "#e6e0e9",
+                    "on-tertiary-fixed-variant": "#594400",
+                    "on-error-container": "#ffdad6",
+                    "surface-dim": "#141218",
+                    "outline-variant": "#494551",
+                    "surface-container": "#211f24",
+                    "on-secondary-fixed-variant": "#4b4263",
+                    "on-primary-container": "#e0d2ff",
+                    "surface-bright": "#3b383e",
+                    "inverse-on-surface": "#322f35",
+                    "outline": "#948e9c",
+                    "tertiary-container": "#c9a74d",
+                    "primary-fixed-dim": "#cfbcff",
+                    "background": "#141218",
+                    "tertiary-fixed-dim": "#e7c365",
+                    "surface-tint": "#cfbcff",
+                    "on-error": "#690005",
+                    "primary-container": "#6750a4",
+                    "on-tertiary-container": "#503d00",
+                    "secondary-container": "#4d4465",
+                    "secondary": "#cdc0e9",
+                    "on-primary-fixed": "#22005d",
+                    "secondary-fixed": "#e9ddff",
+                    "on-tertiary-fixed": "#241a00",
+                    "tertiary-fixed": "#ffdf93",
+                    "primary-fixed": "#e9ddff",
+                    "on-primary": "#381e72",
+                    "inverse-primary": "#6750a4",
+                    "tertiary": "#e7c365",
+                    "surface-container-low": "#1d1b20",
+                    "on-secondary-container": "#bfb2da",
+                    "error-container": "#93000a",
+                    "surface-container-lowest": "#0f0d13",
+                    "on-primary-fixed-variant": "#4f378a",
+                    "primary": "#cfbcff",
+                    "on-secondary": "#342b4b",
+                    "secondary-fixed-dim": "#cdc0e9",
+                    "error": "#ffb4ab",
+                    "surface-container-highest": "#36343a",
+                    "on-tertiary": "#3e2e00",
+                    "surface-container-high": "#2b292f"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "md": "16px",
+                    "xxl": "80px",
+                    "xs": "4px",
+                    "sm": "8px",
+                    "xl": "48px",
+                    "lg": "24px"
+            },
+            "fontFamily": {
+                    "body-lg": ["Inter"],
+                    "h1": ["Geist"],
+                    "display": ["Geist"],
+                    "label-sm": ["Inter"],
+                    "h2": ["Geist"],
+                    "mono-code": ["JetBrains Mono"],
+                    "body-md": ["Inter"]
+            },
+            "fontSize": {
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "h1": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                    "display": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "600"}],
+                    "label-sm": ["13px", {"lineHeight": "1.4", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                    "h2": ["24px", {"lineHeight": "1.3", "letterSpacing": "-0.01em", "fontWeight": "500"}],
+                    "mono-code": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "body-md": ["15px", {"lineHeight": "1.5", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .glow-effect {
+            background: radial-gradient(circle at center, rgba(207, 188, 255, 0.15) 0%, transparent 70%);
+        }
+        .inner-glow {
+            box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-md min-h-screen selection:bg-primary/30">
+<!-- TopAppBar -->
+<header class="bg-surface/80 backdrop-blur-xl border-b border-outline-variant/10 docked full-width top-0 z-50 fixed flex justify-between items-center w-full px-lg py-md max-w-7xl mx-auto">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary" data-icon="security">security</span>
+<span class="font-display text-h1 font-bold tracking-tight text-on-surface">aesmsg</span>
+</div>
+<div class="flex gap-md">
+<button class="text-on-surface-variant hover:text-primary transition-colors duration-200 active:scale-95 transition-transform">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+</div>
+</header>
+<main class="pt-xxl pb-xxl px-md max-w-[640px] mx-auto flex flex-col items-center">
+<!-- Success State Header -->
+<div class="relative w-full py-xl flex flex-col items-center text-center">
+<div class="glow-effect absolute inset-0 -z-10"></div>
+<div class="relative mb-lg">
+<div class="absolute inset-0 bg-primary/20 blur-3xl rounded-full"></div>
+<div class="relative w-24 h-24 bg-primary-container/30 border border-primary/20 rounded-full flex items-center justify-center inner-glow">
+<span class="material-symbols-outlined text-[48px] text-primary" data-icon="lock" style="font-variation-settings: 'FILL' 1;">lock</span>
+<div class="absolute -bottom-1 -right-1 bg-emerald-500 rounded-full p-1 border-4 border-background">
+<span class="material-symbols-outlined text-white text-[18px]" data-icon="check">check</span>
+</div>
+</div>
+</div>
+<h1 class="font-h1 text-h1 text-on-surface mb-xs">Success: Link Created</h1>
+<p class="text-on-surface-variant font-body-md">Your message has been sealed and is ready for delivery.</p>
+</div>
+<!-- Secure Link Card -->
+<div class="w-full bg-surface-container-low border border-outline-variant/10 rounded-xl p-lg inner-glow mb-lg">
+<div class="flex flex-col gap-md">
+<div class="flex justify-between items-center">
+<span class="font-label-sm text-label-sm uppercase tracking-widest text-on-surface-variant">Secure Access Link</span>
+<div class="flex items-center gap-xs px-sm py-1 bg-primary/10 border border-primary/20 rounded-full">
+<span class="w-1.5 h-1.5 bg-primary rounded-full"></span>
+<span class="font-label-sm text-[10px] text-primary uppercase">Encrypted</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant/20 rounded-lg p-md flex items-center justify-between gap-md group">
+<code class="font-mono-code text-mono-code text-primary truncate">https://aesmsg.io/v1/dec/8x7k-2p9m-ql5v-4z2t</code>
+<button class="flex-shrink-0 bg-primary text-on-primary font-label-sm px-md py-sm rounded-lg hover:brightness-110 active:scale-95 transition-all shadow-[0_0_15px_rgba(207,188,255,0.2)]">
+                        Copy Link
+                    </button>
+</div>
+</div>
+</div>
+<!-- Security Summary Bento -->
+<div class="w-full grid grid-cols-1 gap-md mb-xl">
+<div class="bg-surface-container border border-outline-variant/10 rounded-xl p-md flex items-start gap-md">
+<div class="p-sm bg-surface-container-high rounded-lg border border-outline-variant/20">
+<span class="material-symbols-outlined text-primary" data-icon="verified_user">verified_user</span>
+</div>
+<div>
+<h3 class="font-label-sm text-on-surface font-semibold mb-1">Encrypted locally with AES-256-GCM</h3>
+<p class="text-on-surface-variant text-label-sm">Decryption happens exclusively on the recipient's device. We never see your keys.</p>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-md">
+<div class="bg-surface-container border border-outline-variant/10 rounded-xl p-md flex flex-col items-center text-center gap-sm">
+<span class="material-symbols-outlined text-tertiary" data-icon="schedule">schedule</span>
+<div>
+<span class="block font-label-sm text-on-surface">24 hour expiry</span>
+<span class="text-[11px] text-on-surface-variant uppercase tracking-tighter">Time Bound</span>
+</div>
+</div>
+<div class="bg-surface-container border border-outline-variant/10 rounded-xl p-md flex flex-col items-center text-center gap-sm">
+<span class="material-symbols-outlined text-tertiary" data-icon="visibility_off">visibility_off</span>
+<div>
+<span class="block font-label-sm text-on-surface">1 view limit</span>
+<span class="text-[11px] text-on-surface-variant uppercase tracking-tighter">Self-Destruct</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Secondary Actions -->
+<div class="w-full flex flex-col gap-md">
+<span class="font-label-sm text-label-sm text-on-surface-variant text-center uppercase tracking-widest">Share Securely</span>
+<div class="flex gap-md">
+<button class="flex-1 bg-surface-container-high border border-outline-variant/20 py-md rounded-xl flex items-center justify-center gap-sm hover:bg-surface-bright transition-colors active:scale-95">
+<span class="material-symbols-outlined text-on-surface" data-icon="share">share</span>
+<span class="font-label-sm text-on-surface">WhatsApp</span>
+</button>
+<button class="flex-1 bg-surface-container-high border border-outline-variant/20 py-md rounded-xl flex items-center justify-center gap-sm hover:bg-surface-bright transition-colors active:scale-95">
+<span class="material-symbols-outlined text-on-surface" data-icon="forum">forum</span>
+<span class="font-label-sm text-on-surface">Slack</span>
+</button>
+</div>
+<button class="w-full mt-lg border border-error/30 text-error py-md rounded-xl font-label-sm flex items-center justify-center gap-sm hover:bg-error/10 transition-colors active:scale-95">
+<span class="material-symbols-outlined" data-icon="delete_forever">delete_forever</span>
+                Revoke Link
+            </button>
+</div>
+</main>
+<!-- BottomNavBar (Hidden on desktop via style rules but logically here for mobile screen) -->
+<nav class="fixed bottom-0 w-full z-50 rounded-t-xl bg-surface/90 backdrop-blur-2xl border-t border-outline-variant/20 shadow-lg flex justify-around items-center h-xxl pb-safe px-md md:hidden">
+<div class="flex flex-col items-center justify-center text-primary active:scale-90 transition-transform tap-highlight-transparent">
+<span class="material-symbols-outlined" data-icon="lock" style="font-variation-settings: 'FILL' 1;">lock</span>
+<span class="font-label-sm text-label-sm font-medium">Encrypt</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant active:scale-90 transition-transform tap-highlight-transparent">
+<span class="material-symbols-outlined" data-icon="link">link</span>
+<span class="font-label-sm text-label-sm font-medium">Links</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant active:scale-90 transition-transform tap-highlight-transparent">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-label-sm text-label-sm font-medium">Contacts</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant active:scale-90 transition-transform tap-highlight-transparent">
+<span class="material-symbols-outlined" data-icon="vpn_key">vpn_key</span>
+<span class="font-label-sm text-label-sm font-medium">Keys</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant active:scale-90 transition-transform tap-highlight-transparent">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-sm text-label-sm font-medium">Settings</span>
+</div>
+</nav>
+<!-- SideNavBar (Hidden on mobile) -->
+<aside class="hidden md:flex flex-col py-xl space-y-md h-screen w-64 fixed left-0 top-0 bg-surface-container-low border-r border-outline-variant/10">
+<div class="mb-xl px-md">
+<h2 class="font-display text-h2 font-bold text-on-surface">aesmsg</h2>
+<p class="text-on-surface-variant font-label-sm uppercase tracking-widest text-[10px]">Verified Session</p>
+</div>
+<nav class="flex-1 flex flex-col gap-sm">
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-label-sm uppercase tracking-widest">Dashboard</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-primary bg-primary-container/10 border-r-2 border-primary transition-all duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="add_box">add_box</span>
+<span class="font-label-sm uppercase tracking-widest">New Message</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="link">link</span>
+<span class="font-label-sm uppercase tracking-widest">Links</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-label-sm uppercase tracking-widest">Contacts</span>
+</a>
+</nav>
+<div class="px-md mt-auto">
+<button class="w-full bg-primary text-on-primary font-label-sm py-md rounded-lg uppercase tracking-widest hover:brightness-110 transition-all">
+                New Encryption
+            </button>
+</div>
+</aside>
+</body></html>

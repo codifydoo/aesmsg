@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>aesmsg — app icon</title>
+<style>
+  html, body {
+    margin: 0;
+    height: 100%;
+    background: #0b0a0e;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .stage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 56px;
+    padding: 64px;
+  }
+  /* Hero icon */
+  .icon {
+    width: min(56vmin, 560px);
+    height: min(56vmin, 560px);
+    display: block;
+  }
+  /* Size-down legibility strip */
+  .sizes {
+    display: flex;
+    align-items: flex-end;
+    gap: 40px;
+  }
+  .sizes .cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+  .sizes svg { display: block; }
+  .sizes label {
+    font: 500 12px/1 ui-monospace, "SF Mono", Menlo, monospace;
+    letter-spacing: 0.06em;
+    color: #6c6878;
+  }
+  .s128 { width: 128px; height: 128px; }
+  .s64  { width: 64px;  height: 64px; }
+  .s32  { width: 32px;  height: 32px; }
+  .s16  { width: 16px;  height: 16px; }
+</style>
+</head>
+<body>
+  <!-- Reusable icon definition -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <!-- Squircle tile silhouette -->
+      <clipPath id="squircle" clipPathUnits="userSpaceOnUse">
+        <path d="M1022.00,512.00L1021.86,630.58L1021.46,672.24L1020.78,703.05L1019.84,728.37L1018.62,750.23L1017.12,769.63L1015.36,787.17L1013.31,803.23L1010.99,818.07L1008.39,831.88L1005.51,844.79L1002.34,856.91L998.88,868.33L995.13,879.11L991.08,889.30L986.73,898.96L982.08,908.11L977.11,916.79L971.82,925.03L966.20,932.84L960.24,940.26L953.94,947.29L947.29,953.94L940.26,960.24L932.84,966.20L925.03,971.82L916.79,977.11L908.11,982.08L898.96,986.73L889.30,991.08L879.11,995.13L868.33,998.88L856.91,1002.34L844.79,1005.51L831.88,1008.39L818.07,1010.99L803.23,1013.31L787.17,1015.36L769.63,1017.12L750.23,1018.62L728.37,1019.84L703.05,1020.78L672.24,1021.46L630.58,1021.86L512.00,1022.00L393.42,1021.86L351.76,1021.46L320.95,1020.78L295.63,1019.84L273.77,1018.62L254.37,1017.12L236.83,1015.36L220.77,1013.31L205.93,1010.99L192.12,1008.39L179.21,1005.51L167.09,1002.34L155.67,998.88L144.89,995.13L134.70,991.08L125.04,986.73L115.89,982.08L107.21,977.11L98.97,971.82L91.16,966.20L83.74,960.24L76.71,953.94L70.06,947.29L63.76,940.26L57.80,932.84L52.18,925.03L46.89,916.79L41.92,908.11L37.27,898.96L32.92,889.30L28.87,879.11L25.12,868.33L21.66,856.91L18.49,844.79L15.61,831.88L13.01,818.07L10.69,803.23L8.64,787.17L6.88,769.63L5.38,750.23L4.16,728.37L3.22,703.05L2.54,672.24L2.14,630.58L2.00,512.00L2.14,393.42L2.54,351.76L3.22,320.95L4.16,295.63L5.38,273.77L6.88,254.37L8.64,236.83L10.69,220.77L13.01,205.93L15.61,192.12L18.49,179.21L21.66,167.09L25.12,155.67L28.87,144.89L32.92,134.70L37.27,125.04L41.92,115.89L46.89,107.21L52.18,98.97L57.80,91.16L63.76,83.74L70.06,76.71L76.71,70.06L83.74,63.76L91.16,57.80L98.97,52.18L107.21,46.89L115.89,41.92L125.04,37.27L134.70,32.92L144.89,28.87L155.67,25.12L167.09,21.66L179.21,18.49L192.12,15.61L205.93,13.01L220.77,10.69L236.83,8.64L254.37,6.88L273.77,5.38L295.63,4.16L320.95,3.22L351.76,2.54L393.42,2.14L512.00,2.00L630.58,2.14L672.24,2.54L703.05,3.22L728.37,4.16L750.23,5.38L769.63,6.88L787.17,8.64L803.23,10.69L818.07,13.01L831.88,15.61L844.79,18.49L856.91,21.66L868.33,25.12L879.11,28.87L889.30,32.92L898.96,37.27L908.11,41.92L916.79,46.89L925.03,52.18L932.84,57.80L940.26,63.76L947.29,70.06L953.94,76.71L960.24,83.74L966.20,91.16L971.82,98.97L977.11,107.21L982.08,115.89L986.73,125.04L991.08,134.70L995.13,144.89L998.88,155.67L1002.34,167.09L1005.51,179.21L1008.39,192.12L1010.99,205.93L1013.31,220.77L1015.36,236.83L1017.12,254.37L1018.62,273.77L1019.84,295.63L1020.78,320.95L1021.46,351.76L1021.86,393.42L1022.00,512.00Z"/>
+      </clipPath>
+
+      <!-- Faint violet glow behind the mark -->
+      <radialGradient id="violetGlow" cx="50%" cy="47%" r="42%">
+        <stop offset="0%"  stop-color="#6750a4" stop-opacity="0.40"/>
+        <stop offset="48%" stop-color="#6750a4" stop-opacity="0.15"/>
+        <stop offset="100%" stop-color="#6750a4" stop-opacity="0"/>
+      </radialGradient>
+
+      <!-- Top-edge inner light: white fading downward, only the top reads -->
+      <linearGradient id="edgeLight" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%"   stop-color="#ffffff" stop-opacity="0.30"/>
+        <stop offset="1.5%" stop-color="#ffffff" stop-opacity="0.08"/>
+        <stop offset="6%"   stop-color="#ffffff" stop-opacity="0"/>
+      </linearGradient>
+
+      <!-- Keyhole mask: white reveals the mark, black carves the counter/aperture -->
+      <mask id="keyhole" maskUnits="userSpaceOnUse" x="0" y="0" width="1024" height="1024">
+        <rect x="0" y="0" width="1024" height="1024" fill="#fff"/>
+        <!-- keyhole head -->
+        <circle cx="512" cy="476" r="66" fill="#000"/>
+        <!-- keyhole slot, widening downward -->
+        <path d="M494,506 L530,506 L556,604 L468,604 Z" fill="#000"/>
+      </mask>
+
+      <!-- The complete icon, drawn once and referenced at every size -->
+      <g id="aesmsg-icon">
+        <!-- tile -->
+        <g clip-path="url(#squircle)">
+          <rect x="0" y="0" width="1024" height="1024" fill="#141218"/>
+          <rect x="0" y="0" width="1024" height="1024" fill="url(#violetGlow)"/>
+          <!-- the mark: geometric single-story 'a' (bowl + stem), counter carved as keyhole -->
+          <g mask="url(#keyhole)" fill="#cfbcff">
+            <circle cx="512" cy="512" r="210"/>
+            <rect x="658" y="302" width="64" height="420" rx="8"/>
+          </g>
+          <!-- physical glass: top-edge inner light -->
+          <rect x="0" y="0" width="1024" height="1024" fill="url(#edgeLight)"/>
+        </g>
+      </g>
+    </defs>
+  </svg>
+
+  <div class="stage">
+    <svg class="icon" viewBox="0 0 1024 1024"><use href="#aesmsg-icon"/></svg>
+    <div class="sizes">
+      <div class="cell"><svg class="s128" viewBox="0 0 1024 1024"><use href="#aesmsg-icon"/></svg><label>128</label></div>
+      <div class="cell"><svg class="s64"  viewBox="0 0 1024 1024"><use href="#aesmsg-icon"/></svg><label>64</label></div>
+      <div class="cell"><svg class="s32"  viewBox="0 0 1024 1024"><use href="#aesmsg-icon"/></svg><label>32</label></div>
+      <div class="cell"><svg class="s16"  viewBox="0 0 1024 1024"><use href="#aesmsg-icon"/></svg><label>16</label></div>
+    </div>
+  </div>
+</body>
+</html>

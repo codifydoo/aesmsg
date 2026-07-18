@@ -1,0 +1,35 @@
+# Local-only Postgres + Redis for exercising the production storage path.
+# Brought up with `pnpm db:up`. Credentials here are dev-only and never used in prod.
+services:
+  postgres:
+    image: postgres:17.10-alpine
+    environment:
+      POSTGRES_DB: aesmsg
+      POSTGRES_USER: aesmsg
+      POSTGRES_PASSWORD: aesmsg
+    ports:
+      # Non-default host port (55432) so this coexists with other local Postgres
+      # instances; container-internal port stays 5432.
+      - "55432:5432"
+    volumes:
+      - aesmsg-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aesmsg -d aesmsg"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7.4.9-alpine
+    ports:
+      # Non-default host port (56379) so this coexists with other local Redis instances.
+      - "56379:6379"
+    # No volume: Redis only holds ephemeral rate-limit counters.
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  aesmsg-pgdata:

@@ -1,0 +1,133 @@
+# CI for the aesmsg pnpm monorepo (TEST-1 / R12).
+#
+# Three jobs, split by what a suite needs to run:
+#   * main        — lint + typecheck + every node-only unit suite.
+#   * browser     — Vitest browser-mode suites (Playwright Chromium): web, ui,
+#                   and packages/crypto's browser config.
+#   * integration — packages/server-store's Pg + Redis suites against real
+#                   postgres:17 / redis:7 services (they skip silently otherwise).
+#
+# Nothing is deployed here. pnpm is pinned to 10 via corepack + the root
+# package.json "packageManager" field.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Only run the newest commit per ref; supersede in-flight runs.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Lint, typecheck, and all node-only unit suites.
+  #
+  # `pnpm -r test` would also drag in the browser-mode suites (web, ui,
+  # crypto's test:browser) which need Playwright — those run in the `browser`
+  # job instead. crypto is excluded here and its node-only `test:node` runs
+  # explicitly so nothing is silently skipped. server-store runs here too; its
+  # Pg/Redis suites self-skip without TEST_* env and are covered by the
+  # `integration` job below.
+  # ---------------------------------------------------------------------------
+  main:
+    name: lint + typecheck + unit
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Enable corepack (pnpm 10 from packageManager)
+        run: corepack enable
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Lint (Biome)
+        run: pnpm lint
+      - name: Typecheck
+        run: pnpm typecheck
+      - name: Unit tests (node-only workspaces)
+        run: pnpm --filter='!web' --filter='!@aesmsg/ui' --filter='!@aesmsg/crypto' -r test
+      - name: Crypto unit tests (node backend)
+        run: pnpm --filter @aesmsg/crypto test:node
+
+  # ---------------------------------------------------------------------------
+  # Vitest browser-mode suites (headless Chromium via Playwright).
+  # Playwright is pinned to 1.59.1 in web/ui/crypto; install the matching
+  # browser through one workspace's binary so versions can't drift.
+  # ---------------------------------------------------------------------------
+  browser:
+    name: browser-mode tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Enable corepack (pnpm 10 from packageManager)
+        run: corepack enable
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Install Playwright Chromium
+        run: pnpm --filter web exec playwright install --with-deps chromium
+      - name: Web + UI browser tests
+        run: pnpm --filter=web --filter=@aesmsg/ui -r test
+      - name: Crypto browser tests
+        run: pnpm --filter @aesmsg/crypto test:browser
+
+  # ---------------------------------------------------------------------------
+  # server-store integration suite against real Postgres + Redis.
+  # The root `test:integration` script hardcodes localhost:55432 (pg) and
+  # localhost:56379 (redis), so the service ports are mapped to those host
+  # ports and the script runs verbatim. The suites run their own migrations
+  # (pg.test.ts / migrate.test.ts create a schema and call runMigrations), so
+  # no separate migrate step is required here.
+  # ---------------------------------------------------------------------------
+  integration:
+    name: server-store integration (pg + redis)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: aesmsg
+          POSTGRES_PASSWORD: aesmsg
+          POSTGRES_DB: aesmsg
+        ports:
+          - 55432:5432
+        options: >-
+          --health-cmd "pg_isready -U aesmsg"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7
+        ports:
+          - 56379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Enable corepack (pnpm 10 from packageManager)
+        run: corepack enable
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Integration tests (server-store Pg + Redis)
+        run: pnpm test:integration

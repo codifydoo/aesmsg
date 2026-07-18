@@ -1,0 +1,42 @@
+{
+  "cli": {
+    "version": ">= 12.0.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "ios": {
+        "simulator": true
+      }
+    },
+    "preview": {
+      "distribution": "internal",
+      "autoIncrement": true,
+      "env": {
+        "AESMSG_API_BASE_URL": "https://api.aesmsg.com",
+        "AESMSG_HOST": "aesmsg.com"
+      }
+    },
+    "production": {
+      "autoIncrement": true,
+      "env": {
+        "AESMSG_API_BASE_URL": "https://api.aesmsg.com",
+        "AESMSG_HOST": "aesmsg.com"
+      }
+    }
+  },
+  "submit": {
+    "production": {
+      "ios": {
+        "ascAppId": "6775473926",
+        "appleTeamId": "YKU945Y6BG"
+      },
+      "android": {
+        "serviceAccountKeyPath": "./play-service-account.json",
+        "track": "internal"
+      }
+    }
+  }
+}

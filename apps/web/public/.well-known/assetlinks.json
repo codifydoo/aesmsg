@@ -1,0 +1,13 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.aesmsg.app",
+      "sha256_cert_fingerprints": [
+        "B5:B7:ED:DB:56:50:C4:F6:A2:E9:76:9A:DA:1D:1A:9A:B6:07:FE:5F:81:03:99:43:43:42:9D:39:22:7F:94:07",
+        "0D:D9:0A:06:C0:B5:C0:34:3C:2C:9E:CB:8E:89:4F:16:4E:5F:9D:81:15:61:24:44:29:9C:79:03:19:73:CD:B8"
+      ]
+    }
+  }
+]

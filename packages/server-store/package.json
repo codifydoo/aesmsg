@@ -1,0 +1,31 @@
+{
+  "name": "@aesmsg/server-store",
+  "version": "0.0.0",
+  "private": true,
+  "license": "Apache-2.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./memory": "./src/memory/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --config vitest.config.ts",
+    "test:watch": "vitest --config vitest.config.ts",
+    "test:coverage": "vitest run --config vitest.config.ts --coverage",
+    "migrate": "tsx src/migrate.ts",
+    "purge": "tsx src/admin/purge-cli.ts"
+  },
+  "dependencies": {
+    "ioredis": "^5.4.1",
+    "pg": "^8.13.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/pg": "^8.11.10",
+    "@vitest/coverage-v8": "^3.2.4",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0"
+  }
+}

@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>aesmsg — Launch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#141218;
+    --violet:#cfbcff;
+    --glow:#6750a4;
+    --offwhite:#e6e0e9;
+    --muted:#948e9c;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{height:100%;width:100%;}
+  body{
+    background:var(--bg);
+    font-family:"Geist","Inter",system-ui,-apple-system,sans-serif;
+    overflow:hidden;
+    position:relative;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+
+  /* soft radial violet glow from center */
+  .glow{
+    position:absolute; inset:0; pointer-events:none;
+    background:
+      radial-gradient(62vmin 62vmin at 50% 45%,
+        rgba(103,80,164,0.30),
+        rgba(103,80,164,0.07) 40%,
+        rgba(103,80,164,0.00) 68%);
+  }
+
+  /* faint concentric seal rings */
+  .rings{position:absolute; left:50%; top:45%; transform:translate(-50%,-50%); pointer-events:none;}
+  .ring{
+    position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+    border:1px solid rgba(207,188,255,0.055); border-radius:50%;
+  }
+  .ring.r1{width:50vmin;height:50vmin;border-color:rgba(207,188,255,0.07);}
+  .ring.r2{width:72vmin;height:72vmin;border-color:rgba(207,188,255,0.05);}
+  .ring.r3{width:98vmin;height:98vmin;border-color:rgba(207,188,255,0.035);}
+  .ring.r4{width:128vmin;height:128vmin;border-color:rgba(207,188,255,0.022);}
+
+  /* centered mark + wordmark — optically lifted above true center */
+  .center{
+    position:absolute; left:50%; top:45%; transform:translate(-50%,-50%);
+    display:flex; flex-direction:column; align-items:center;
+    gap:5.4vmin;
+  }
+  .mark{width:23vmin; height:23vmin; display:block;}
+  .wordmark{
+    font-weight:500;
+    font-size:8.6vmin;
+    letter-spacing:-0.035em;
+    color:var(--offwhite);
+    line-height:1;
+  }
+
+  /* bottom secondary line + slim loader */
+  .bottom{
+    position:absolute; left:0; right:0; bottom:8vmin;
+    display:flex; flex-direction:column; align-items:center;
+    gap:3.4vmin;
+  }
+  .tag{
+    color:var(--muted);
+    font-weight:400;
+    font-size:2vmin;
+    letter-spacing:0.32em;
+    white-space:nowrap;
+    /* nudge to keep optical centering with trailing letter-spacing */
+    padding-left:0.32em;
+  }
+  .loader{
+    width:28vmin; height:2px; border-radius:2px;
+    background:rgba(207,188,255,0.10);
+    overflow:hidden; position:relative;
+  }
+  .loader::after{
+    content:""; position:absolute; top:0; left:0; height:100%; width:38%;
+    background:linear-gradient(90deg, transparent, var(--violet) 50%, transparent);
+    animation:slide 1.7s cubic-bezier(.45,.05,.55,.95) infinite;
+  }
+  @keyframes slide{
+    0%{transform:translateX(-110%);}
+    100%{transform:translateX(330%);}
+  }
+</style>
+</head>
+<body>
+  <div class="glow"></div>
+  <div class="rings">
+    <div class="ring r1"></div>
+    <div class="ring r2"></div>
+    <div class="ring r3"></div>
+    <div class="ring r4"></div>
+  </div>
+
+  <div class="center">
+    <svg class="mark" viewBox="0 0 300 300" fill="none" aria-label="aesmsg mark">
+      <defs>
+        <!-- keyhole-aperture counter: cuts through to reveal the glow behind -->
+        <mask id="keyhole" maskUnits="userSpaceOnUse" x="0" y="0" width="300" height="300">
+          <rect x="0" y="0" width="300" height="300" fill="white"/>
+          <circle cx="132" cy="141" r="30" fill="black"/>
+          <path d="M120 152 L144 152 L153 207 L111 207 Z" fill="black"/>
+        </mask>
+      </defs>
+      <g fill="#cfbcff">
+        <!-- bowl of the geometric single-story 'a' -->
+        <circle cx="132" cy="165" r="92" mask="url(#keyhole)"/>
+        <!-- straight stem on the right -->
+        <rect x="207" y="76" width="27" height="180" rx="13.5"/>
+      </g>
+    </svg>
+    <div class="wordmark">aesmsg</div>
+  </div>
+
+  <div class="bottom">
+    <div class="tag">end-to-end encrypted</div>
+    <div class="loader"></div>
+  </div>
+</body>
+</html>

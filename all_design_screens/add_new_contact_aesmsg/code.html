@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Add Contact | aesmsg</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&amp;family=JetBrains+Mono:wght@400&amp;family=Geist:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-variant": "#36343a",
+                        "outline-variant": "#494551",
+                        "primary": "#cfbcff",
+                        "secondary": "#cdc0e9",
+                        "inverse-on-surface": "#322f35",
+                        "on-secondary-fixed-variant": "#4b4263",
+                        "on-secondary-container": "#bfb2da",
+                        "secondary-fixed-dim": "#cdc0e9",
+                        "primary-fixed": "#e9ddff",
+                        "inverse-surface": "#e6e0e9",
+                        "on-secondary-fixed": "#1f1635",
+                        "surface-tint": "#cfbcff",
+                        "surface-container": "#211f24",
+                        "surface-container-low": "#1d1b20",
+                        "primary-container": "#6750a4",
+                        "on-secondary": "#342b4b",
+                        "on-tertiary-fixed-variant": "#594400",
+                        "on-error": "#690005",
+                        "surface": "#141218",
+                        "tertiary-container": "#c9a74d",
+                        "tertiary": "#e7c365",
+                        "on-tertiary": "#3e2e00",
+                        "error-container": "#93000a",
+                        "tertiary-fixed-dim": "#e7c365",
+                        "surface-dim": "#141218",
+                        "primary-fixed-dim": "#cfbcff",
+                        "surface-container-highest": "#36343a",
+                        "secondary-fixed": "#e9ddff",
+                        "background": "#141218",
+                        "on-surface-variant": "#cbc4d2",
+                        "on-primary-container": "#e0d2ff",
+                        "tertiary-fixed": "#ffdf93",
+                        "on-primary-fixed-variant": "#4f378a",
+                        "outline": "#948e9c",
+                        "on-tertiary-fixed": "#241a00",
+                        "on-background": "#e6e0e9",
+                        "on-error-container": "#ffdad6",
+                        "on-surface": "#e6e0e9",
+                        "on-tertiary-container": "#503d00",
+                        "error": "#ffb4ab",
+                        "on-primary-fixed": "#22005d",
+                        "surface-container-lowest": "#0f0d13",
+                        "on-primary": "#381e72",
+                        "secondary-container": "#4d4465",
+                        "surface-container-high": "#2b292f",
+                        "surface-bright": "#3b383e",
+                        "inverse-primary": "#6750a4"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xl": "48px",
+                        "xs": "4px",
+                        "sm": "8px",
+                        "md": "16px",
+                        "xxl": "80px",
+                        "lg": "24px"
+                    },
+                    "fontFamily": {
+                        "h1": ["Geist"],
+                        "display": ["Geist"],
+                        "label-sm": ["Inter"],
+                        "mono-code": ["JetBrains Mono"],
+                        "h2": ["Geist"],
+                        "body-md": ["Inter"],
+                        "body-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "h1": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                        "display": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "600"}],
+                        "label-sm": ["13px", {"lineHeight": "1.4", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                        "mono-code": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "h2": ["24px", {"lineHeight": "1.3", "letterSpacing": "-0.01em", "fontWeight": "500"}],
+                        "body-md": ["15px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #070A12; /* Brand Anchor Base Level 0 */
+            color: #e6e0e9;
+        }
+        .glass-panel {
+            background: rgba(20, 18, 24, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .primary-gradient {
+            background: linear-gradient(135deg, #cfbcff 0%, #6750a4 100%);
+        }
+        .secure-input:focus {
+            outline: none;
+            border-color: #cfbcff;
+        }
+        .inner-glow {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-body-md text-body-md antialiased min-h-screen">
+<!-- TopAppBar (Center-Aligned) -->
+<header class="bg-surface/80 backdrop-blur-xl docked full-width top-0 z-50 border-b border-outline-variant/10 fixed w-full">
+<div class="flex justify-between items-center w-full px-lg py-md max-w-7xl mx-auto">
+<button class="text-on-surface transition-transform active:scale-95">
+<span class="material-symbols-outlined">close</span>
+</button>
+<h2 class="font-display text-h2 font-bold tracking-tight text-on-surface">aesmsg</h2>
+<div class="flex gap-md">
+<span class="material-symbols-outlined text-primary" data-icon="security">security</span>
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="notifications">notifications</span>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="pt-xxl pb-xxl px-md max-w-[640px] mx-auto flex flex-col gap-xl">
+<!-- Verification Importance Section -->
+<section class="mt-lg">
+<div class="flex items-center gap-sm mb-sm">
+<span class="text-tertiary material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+<span class="font-label-sm text-label-sm uppercase tracking-widest text-tertiary">Institutional Trust</span>
+</div>
+<h1 class="font-h1 text-h1 text-on-surface mb-md">Verify Identity</h1>
+<p class="text-on-surface-variant font-body-lg leading-relaxed">
+                Verification ensures that your end-to-end encryption is tied to a specific, trusted physical device. This prevents "Man-in-the-Middle" attacks by cryptographically confirming the identity of your contact.
+            </p>
+</section>
+<!-- QR Scanner (Prominent Action) -->
+<section>
+<div class="glass-panel rounded-xl p-lg flex flex-col items-center gap-md relative overflow-hidden group active:scale-[0.98] transition-transform duration-200 cursor-pointer">
+<div class="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<div class="w-full aspect-square max-w-[240px] border-2 border-dashed border-primary/30 rounded-xl flex items-center justify-center relative">
+<!-- Scanning Viewfinder corners -->
+<div class="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-primary"></div>
+<div class="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-primary"></div>
+<div class="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-primary"></div>
+<div class="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-primary"></div>
+<div class="flex flex-col items-center gap-sm">
+<span class="material-symbols-outlined text-[64px] text-primary" data-icon="qr_code_scanner">qr_code_scanner</span>
+</div>
+</div>
+<div class="text-center">
+<h2 class="font-h2 text-h2 text-on-surface">Scan QR Code</h2>
+<p class="text-on-surface-variant font-label-sm mt-xs">The safest way to verify identity</p>
+</div>
+</div>
+</section>
+<!-- Divider with Text -->
+<div class="flex items-center gap-md">
+<div class="h-px flex-1 bg-outline-variant/20"></div>
+<span class="font-label-sm text-label-sm text-outline-variant uppercase">Alternative Methods</span>
+<div class="h-px flex-1 bg-outline-variant/20"></div>
+</div>
+<!-- Manual Paste Section -->
+<section class="flex flex-col gap-md">
+<label class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest px-xs">Manual Public Key</label>
+<div class="relative">
+<textarea class="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-xl px-md py-md font-mono-code text-mono-code secure-input text-on-surface placeholder:text-outline-variant/50 focus:ring-0 transition-all" placeholder="Enter the Base64 encoded public key..." rows="4"></textarea>
+<div class="absolute right-md bottom-md">
+<button class="bg-surface-container-high text-primary px-md py-sm rounded-lg font-label-sm text-label-sm flex items-center gap-xs border border-outline-variant/20 inner-glow transition-all active:scale-95">
+<span class="material-symbols-outlined text-[18px]">content_paste</span>
+                        Paste
+                    </button>
+</div>
+</div>
+</section>
+<!-- File Import Section -->
+<section>
+<button class="w-full glass-panel inner-glow flex items-center justify-between p-md rounded-xl transition-all hover:bg-surface-container-high active:scale-95 group">
+<div class="flex items-center gap-md">
+<div class="w-12 h-12 rounded-lg bg-secondary-container/30 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined" data-icon="upload_file">upload_file</span>
+</div>
+<div class="text-left">
+<p class="font-h2 text-body-lg font-medium text-on-surface">Import .asc or .key file</p>
+<p class="text-on-surface-variant font-label-sm">Standard OpenPGP compatible files</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline-variant group-hover:text-on-surface transition-colors">chevron_right</span>
+</button>
+</section>
+<!-- Add Button (Fixed Contextual Action) -->
+<section class="mt-lg">
+<button class="w-full primary-gradient text-on-primary py-lg rounded-xl font-h2 text-h2 font-semibold shadow-[0_0_15px_rgba(207,188,255,0.2)] hover:shadow-[0_0_25px_rgba(207,188,255,0.3)] transition-all active:scale-95">
+                Verify &amp; Add Contact
+            </button>
+<p class="text-center mt-md text-on-surface-variant font-label-sm flex items-center justify-center gap-xs">
+<span class="material-symbols-outlined text-[16px]">lock</span>
+                Encrypted with RSA-4096 / SHA-256
+            </p>
+</section>
+</main>
+<!-- Shell Suppression: BottomNavBar is hidden on task-focused screens like "Add Contact" to prioritize the focus column -->
+<!-- Hero Illustration (Background Subtle Element) -->
+<div class="fixed bottom-0 right-0 w-full h-[300px] pointer-events-none opacity-20 -z-10 bg-gradient-to-t from-primary/10 to-transparent">
+<img class="w-full h-full object-cover mix-blend-overlay" data-alt="A highly detailed close-up of a futuristic cryptographic verification sequence on a translucent glass screen. The image features glowing light particles in electric blue and soft violet, forming intricate geometric patterns that suggest digital security and data integrity. The background is a deep, dark obsidian matte texture, creating a premium institutional atmosphere that feels technologically advanced and serene." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDvDotC_kw6cFCmbgOGe6yGossQtT1y58GKG5y0VG2pctHl2LA2yICYdvKMppHLawyzWBZPxW5rZSrVOUpcm57aj7BijcKbXs0L7_8NLNin_7Gezh-igXCt89TU-MV0He4JIJ7HJZZXg9AsAbzU7J5Y6JxhyutKrA_1TJIn2fy1Q_Nizd5xMb5Dpj1Ok1kmMR8LBt_MnWyV683spK0b02ctYLE020KnPIvBsRAsrwgxTo0l3UaPsFW6u-wESOOxHzrYxl2jZw7mzBg"/>
+</div>
+</body></html>

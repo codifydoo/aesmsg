@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Geist:wght@500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+        }
+        .glass-panel {
+            background: rgba(17, 24, 39, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .inner-glow {
+            box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+        }
+        .primary-gradient {
+            background: linear-gradient(135deg, #cfbcff 0%, #6750a4 100%);
+        }
+        .primary-btn-glow:hover {
+            box-shadow: 0 0 15px rgba(207, 188, 255, 0.3);
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-background": "#e6e0e9",
+                        "on-error-container": "#ffdad6",
+                        "tertiary-fixed": "#ffdf93",
+                        "primary-fixed": "#e9ddff",
+                        "on-primary": "#381e72",
+                        "on-secondary": "#342b4b",
+                        "error-container": "#93000a",
+                        "surface-container": "#211f24",
+                        "surface-container-lowest": "#0f0d13",
+                        "surface-container-low": "#1d1b20",
+                        "surface-container-high": "#2b292f",
+                        "on-tertiary-container": "#503d00",
+                        "tertiary-fixed-dim": "#e7c365",
+                        "tertiary-container": "#c9a74d",
+                        "surface-container-highest": "#36343a",
+                        "surface": "#141218",
+                        "on-tertiary-fixed": "#241a00",
+                        "surface-tint": "#cfbcff",
+                        "on-surface-variant": "#cbc4d2",
+                        "surface-dim": "#141218",
+                        "primary-container": "#6750a4",
+                        "secondary-container": "#4d4465",
+                        "on-surface": "#e6e0e9",
+                        "on-primary-fixed-variant": "#4f378a",
+                        "on-secondary-container": "#bfb2da",
+                        "inverse-surface": "#e6e0e9",
+                        "error": "#ffb4ab",
+                        "outline": "#948e9c",
+                        "surface-variant": "#36343a",
+                        "secondary": "#cdc0e9",
+                        "on-tertiary-fixed-variant": "#594400",
+                        "surface-bright": "#3b383e",
+                        "on-primary-fixed": "#22005d",
+                        "on-error": "#690005",
+                        "on-secondary-fixed-variant": "#4b4263",
+                        "inverse-primary": "#6750a4",
+                        "inverse-on-surface": "#322f35",
+                        "primary": "#cfbcff",
+                        "on-tertiary": "#3e2e00",
+                        "tertiary": "#e7c365",
+                        "on-primary-container": "#e0d2ff",
+                        "outline-variant": "#494551",
+                        "secondary-fixed-dim": "#cdc0e9",
+                        "primary-fixed-dim": "#cfbcff",
+                        "on-secondary-fixed": "#1f1635",
+                        "secondary-fixed": "#e9ddff",
+                        "background": "#141218"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "lg": "24px",
+                        "xs": "4px",
+                        "sm": "8px",
+                        "xxl": "80px",
+                        "md": "16px",
+                        "xl": "48px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "h1": ["Geist"],
+                        "body-md": ["Inter"],
+                        "mono-code": ["JetBrains Mono"],
+                        "h2": ["Geist"],
+                        "display": ["Geist"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "label-sm": ["13px", {"lineHeight": "1.4", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                        "h1": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                        "body-md": ["15px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "mono-code": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "h2": ["24px", {"lineHeight": "1.3", "letterSpacing": "-0.01em", "fontWeight": "500"}],
+                        "display": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background font-body-md antialiased min-h-screen">
+<!-- Top Navigation (Mobile/Standard) -->
+<header class="bg-surface/80 backdrop-blur-xl border-b border-outline-variant/10 docked full-width top-0 z-50 fixed md:hidden">
+<div class="flex justify-between items-center w-full px-lg py-md max-w-7xl mx-auto">
+<h1 class="font-display text-h1 font-bold tracking-tight text-on-surface">aesmsg</h1>
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-primary">security</span>
+<span class="material-symbols-outlined text-primary">notifications</span>
+</div>
+</div>
+</header>
+<!-- Side Navigation (Web Desktop) -->
+<nav class="hidden md:flex flex-col py-xl space-y-md bg-surface-container-low h-screen w-64 fixed left-0 top-0 border-r border-outline-variant/10 transition-all duration-300 ease-in-out">
+<div class="mb-xl px-md">
+<h2 class="font-display text-h2 font-bold text-on-surface">aesmsg</h2>
+<p class="text-on-surface-variant font-label-sm uppercase tracking-widest mt-xs">Verified Session</p>
+</div>
+<div class="flex flex-col space-y-xs w-full px-sm">
+<a class="flex items-center gap-md p-md rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-sm uppercase tracking-widest">Dashboard</span>
+</a>
+<a class="flex items-center gap-md p-md rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" href="#">
+<span class="material-symbols-outlined">add_box</span>
+<span class="font-label-sm uppercase tracking-widest">New Message</span>
+</a>
+<a class="flex items-center gap-md p-md rounded-lg text-primary bg-primary-container/10 border-r-2 border-primary transition-all" href="#">
+<span class="material-symbols-outlined">link</span>
+<span class="font-label-sm uppercase tracking-widest">Links</span>
+</a>
+<a class="flex items-center gap-md p-md rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-label-sm uppercase tracking-widest">Contacts</span>
+</a>
+<a class="flex items-center gap-md p-md rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" href="#">
+<span class="material-symbols-outlined">vpn_key</span>
+<span class="font-label-sm uppercase tracking-widest">Keys</span>
+</a>
+<a class="flex items-center gap-md p-md rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-sm uppercase tracking-widest">Settings</span>
+</a>
+</div>
+<div class="mt-auto px-md">
+<button class="w-full primary-gradient text-on-primary py-md rounded-xl font-label-sm uppercase tracking-widest primary-btn-glow active:scale-95 transition-transform flex items-center justify-center gap-sm">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">enhanced_encryption</span>
+                New Encryption
+            </button>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="md:ml-64 pt-xxl md:pt-md pb-xxl px-lg min-h-screen">
+<div class="max-w-7xl mx-auto space-y-xl">
+<!-- Page Header -->
+<section class="flex flex-col md:flex-row md:items-end justify-between gap-md">
+<div class="space-y-xs">
+<h2 class="font-h1 text-h1 text-on-surface">Secure Links</h2>
+<p class="text-on-surface-variant font-body-md max-w-lg">Manage and monitor your self-destructing encrypted message tunnels.</p>
+</div>
+<div class="flex gap-md">
+<button class="px-lg py-md rounded-lg border border-outline-variant/20 bg-surface-container-high text-on-surface hover:bg-surface-container-highest transition-colors font-label-sm uppercase tracking-widest">
+                        Export Logs
+                    </button>
+<button class="px-lg py-md rounded-lg primary-gradient text-on-primary font-label-sm uppercase tracking-widest primary-btn-glow flex items-center gap-xs">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                        Create Link
+                    </button>
+</div>
+</section>
+<!-- Status Metrics (Bento-lite) -->
+<section class="grid grid-cols-1 md:grid-cols-4 gap-md">
+<div class="glass-panel inner-glow p-lg rounded-xl">
+<p class="text-on-surface-variant font-label-sm uppercase tracking-widest">Total Active</p>
+<h3 class="text-h1 font-display mt-sm">24</h3>
+</div>
+<div class="glass-panel inner-glow p-lg rounded-xl">
+<p class="text-on-surface-variant font-label-sm uppercase tracking-widest">Expiring Soon</p>
+<h3 class="text-h1 font-display mt-sm text-tertiary">3</h3>
+</div>
+<div class="glass-panel inner-glow p-lg rounded-xl">
+<p class="text-on-surface-variant font-label-sm uppercase tracking-widest">Recent Opens</p>
+<h3 class="text-h1 font-display mt-sm text-primary">12</h3>
+</div>
+<div class="glass-panel inner-glow p-lg rounded-xl">
+<p class="text-on-surface-variant font-label-sm uppercase tracking-widest">Revoked</p>
+<h3 class="text-h1 font-display mt-sm text-error">2</h3>
+</div>
+</section>
+<!-- Table Container -->
+<section class="glass-panel inner-glow rounded-xl overflow-hidden">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-high/50 border-b border-outline-variant/10">
+<th class="px-lg py-md font-label-sm uppercase tracking-widest text-on-surface-variant">Status</th>
+<th class="px-lg py-md font-label-sm uppercase tracking-widest text-on-surface-variant">Recipient</th>
+<th class="px-lg py-md font-label-sm uppercase tracking-widest text-on-surface-variant">Created</th>
+<th class="px-lg py-md font-label-sm uppercase tracking-widest text-on-surface-variant">Expiry</th>
+<th class="px-lg py-md font-label-sm uppercase tracking-widest text-on-surface-variant">Usage</th>
+<th class="px-lg py-md font-label-sm uppercase tracking-widest text-on-surface-variant text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/10">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container-high/30 transition-colors group">
+<td class="px-lg py-lg">
+<span class="inline-flex items-center gap-xs px-sm py-xs rounded border border-emerald-500/20 text-emerald-400 font-label-sm uppercase tracking-widest bg-emerald-500/5">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                        Available
+                                    </span>
+</td>
+<td class="px-lg py-lg">
+<div class="flex flex-col">
+<span class="font-body-md text-on-surface">Alpha Project Lead</span>
+<code class="font-mono-code text-label-sm text-on-surface-variant">0x7F...9A4B</code>
+</div>
+</td>
+<td class="px-lg py-lg text-on-surface-variant font-body-md">Oct 24, 2023</td>
+<td class="px-lg py-lg text-on-surface-variant font-body-md">In 48 Hours</td>
+<td class="px-lg py-lg">
+<div class="flex items-center gap-sm">
+<div class="w-16 h-1.5 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="bg-primary h-full w-1/5"></div>
+</div>
+<span class="text-label-sm text-on-surface-variant">1/5</span>
+</div>
+</td>
+<td class="px-lg py-lg text-right">
+<div class="flex justify-end gap-md">
+<button class="text-on-surface-variant hover:text-primary transition-colors active:scale-90 transform" title="Copy Link"><span class="material-symbols-outlined">content_copy</span></button>
+<button class="text-on-surface-variant hover:text-tertiary transition-colors active:scale-90 transform" title="Revoke Access"><span class="material-symbols-outlined">block</span></button>
+<button class="text-on-surface-variant hover:text-error transition-colors active:scale-90 transform" title="Delete"><span class="material-symbols-outlined">delete</span></button>
+</div>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container-high/30 transition-colors group">
+<td class="px-lg py-lg">
+<span class="inline-flex items-center gap-xs px-sm py-xs rounded border border-primary/20 text-primary font-label-sm uppercase tracking-widest bg-primary/5">
+<span class="material-symbols-outlined text-[14px]">visibility</span>
+                                        Opened
+                                    </span>
+</td>
+<td class="px-lg py-lg">
+<div class="flex flex-col">
+<span class="font-body-md text-on-surface">Internal Audit</span>
+<code class="font-mono-code text-label-sm text-on-surface-variant">0x12...E88C</code>
+</div>
+</td>
+<td class="px-lg py-lg text-on-surface-variant font-body-md">Oct 23, 2023</td>
+<td class="px-lg py-lg text-on-surface-variant font-body-md">Oct 30, 2023</td>
+<td class="px-lg py-lg">
+<div class="flex items-center gap-sm">
+<div class="w-16 h-1.5 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="bg-primary h-full w-full"></div>
+</div>
+<span class="text-label-sm text-on-surface-variant">1/1</span>
+</div>
+</td>
+<td class="px-lg py-lg text-right">
+<div class="flex justify-end gap-md opacity-50 cursor-not-allowed">
+<button class="text-on-surface-variant" disabled=""><span class="material-symbols-outlined">content_copy</span></button>
+<button class="text-on-surface-variant" disabled=""><span class="material-symbols-outlined">block</span></button>
+<button class="text-on-surface-variant hover:text-error transition-colors active:scale-90 transform cursor-pointer opacity-100" title="Delete"><span class="material-symbols-outlined">delete</span></button>
+</div>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container-high/30 transition-colors group">
+<td class="px-lg py-lg">
+<span class="inline-flex items-center gap-xs px-sm py-xs rounded border border-error/20 text-error font-label-sm uppercase tracking-widest bg-error/5">
+<span class="material-symbols-outlined text-[14px]">cancel</span>
+                                        Revoked
+                                    </span>
+</td>
+<td class="px-lg py-lg">
+<div class="flex flex-col">
+<span class="font-body-md text-on-surface">External Vendor</span>
+<code class="font-mono-code text-label-sm text-on-surface-variant">0xCC...23F1</code>
+</div>
+</td>
+<td class="px-lg py-lg text-on-surface-variant font-body-md">Oct 20, 2023</td>
+<td class="px-lg py-lg text-on-surface-variant font-body-md">—</td>
+<td class="px-lg py-lg">
+<div class="flex items-center gap-sm">
+<div class="w-16 h-1.5 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="bg-error h-full w-0"></div>
+</div>
+<span class="text-label-sm text-on-surface-variant">0/3</span>
+</div>
+</td>
+<td class="px-lg py-lg text-right">
+<div class="flex justify-end gap-md">
+<button class="text-on-surface-variant opacity-30" disabled=""><span class="material-symbols-outlined">content_copy</span></button>
+<button class="text-on-surface-variant opacity-30" disabled=""><span class="material-symbols-outlined">block</span></button>
+<button class="text-on-surface-variant hover:text-error transition-colors active:scale-90 transform" title="Delete"><span class="material-symbols-outlined">delete</span></button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Empty State Block (Commented out in logic, but present as requested pattern) -->
+<!-- 
+                <div class="flex flex-col items-center justify-center py-xxl px-lg text-center space-y-md border-t border-outline-variant/10">
+                    <div class="w-20 h-20 rounded-full bg-surface-container-highest flex items-center justify-center mb-md">
+                        <span class="material-symbols-outlined text-display text-on-surface-variant/40">link_off</span>
+                    </div>
+                    <h3 class="font-h2 text-h2 text-on-surface">You have not created any secure links yet</h3>
+                    <p class="text-on-surface-variant font-body-md max-w-sm">Start sharing sensitive information securely by generating your first encrypted access link.</p>
+                    <button class="mt-md primary-gradient text-on-primary px-xl py-md rounded-xl font-label-sm uppercase tracking-widest primary-btn-glow">
+                        Create Your First Link
+                    </button>
+                </div> 
+                -->
+</section>
+<!-- Bottom Illustration/Context -->
+<section class="grid grid-cols-1 md:grid-cols-2 gap-lg pt-xl">
+<div class="glass-panel p-xl rounded-2xl flex gap-lg items-center">
+<div class="flex-shrink-0 w-24 h-24 rounded-xl bg-surface-container-highest flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover opacity-60" data-alt="A macro photograph of high-tech fiber optic cables glowing with soft blue and violet light against a dark, institutional black background. The lighting is moody and cinematic, emphasizing technical precision and secure data transmission. The style is clean, modern, and high-contrast, fitting a premium cybersecurity interface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJnP25kOu7Sqin09hcAd_hp22DxDu4FOoUaN5JO1qzkXLGrCvXWeBV8dbs4Qb9FzK_e-YNAPgT7Y6RRoWAb7Wz24iEd-q41lWbr1HRDHwhFYbyB-1piCnRkBME6kZdcnrNOgOvaSkfPOROoUAOPXG4OU-3OlsWotchzAq4ZmRb8T494Co0aQuudV8DvOsBRERApRnEeV0FnwyB5yhhhfW1ST6LQhvbAd-bvW3tSkvKVVH2cxXk6T2YvMghrdS95PmfA_Z3zB2nO-s"/>
+</div>
+<div class="space-y-xs">
+<h4 class="font-h2 text-on-surface text-[18px]">Zero-Knowledge Policy</h4>
+<p class="text-on-surface-variant font-label-sm">Links are encrypted locally. Even aesmsg cannot access the content of your transmissions.</p>
+</div>
+</div>
+<div class="glass-panel p-xl rounded-2xl flex gap-lg items-center">
+<div class="flex-shrink-0 w-24 h-24 rounded-xl bg-surface-container-highest flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover opacity-60" data-alt="A clean, minimalist digital rendering of a sleek server rack in a dark data center, illuminated by tiny emerald and sapphire status LEDs. The composition is editorial and balanced, conveying institutional trust and high-end security. Soft bokeh effects create a sense of depth and sophisticated technology." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAz8apvsC5CSKFZvciqAWoO6JRirQXwp2EnAOGYgZzQyVHvX2_KOgz2QLj2xUCasX4zGncl5bObmlc6SSkNzlIFJ4i2s5jJPL-jmfV0UEUkgvm6k4oX87vLq8ebBNlFUCBAaK0Ch1zEo_wz8zbXbI_07UTQ9uLBn1mzSG22kFgt9g2XAXAxif4Mw2W-SpOJejXhchl_UT1PvtJC8XN8aU730k6sLvoK-85PAVQWZ9W_BcTQYhd0FScDRWPYWcR04Tiw6ii8hLEsMyc"/>
+</div>
+<div class="space-y-xs">
+<h4 class="font-h2 text-on-surface text-[18px]">Self-Destruction</h4>
+<p class="text-on-surface-variant font-label-sm">Once a link reaches its open limit or expiry date, the encryption keys are purged from the system.</p>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- Mobile Bottom Navigation -->
+<footer class="md:hidden bg-surface/90 backdrop-blur-2xl fixed bottom-0 w-full z-50 rounded-t-xl border-t border-outline-variant/20 shadow-lg flex justify-around items-center h-xxl pb-safe px-md">
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined">lock</span>
+<span class="font-label-sm">Encrypt</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">link</span>
+<span class="font-label-sm">Links</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-label-sm">Contacts</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined">vpn_key</span>
+<span class="font-label-sm">Keys</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-sm">Settings</span>
+</a>
+</footer>
+</body></html>

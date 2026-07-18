@@ -1,0 +1,34 @@
+# Docker build context is the repo root (Sproobo builds apps/api/Dockerfile from
+# there). Keep every package.json + the lockfile so a --frozen-lockfile install
+# can validate the workspace graph; prune everything heavy the API never needs.
+
+# VCS + tooling
+.git
+.github
+.claude
+.vscode
+
+# Dependencies / build outputs (reinstalled or regenerated inside the image)
+**/node_modules
+**/dist
+**/.next
+**/.expo
+**/.turbo
+**/coverage
+**/*.tsbuildinfo
+
+# Native mobile build dirs (no workspace manifests live under these)
+apps/mobile/ios
+apps/mobile/android
+
+# Design artifacts — large HTML/PNG mockups, not application source
+all_design_screens
+
+# Local env files — real config comes from Sproobo secrets/bindings, never the image
+**/.env
+**/.env.*
+!**/.env.example
+
+# Misc
+**/*.log
+.DS_Store

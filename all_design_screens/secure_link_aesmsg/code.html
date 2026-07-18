@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>aesmsg | Open Secure Link</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;family=Geist:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-bright": "#3b383e",
+                    "tertiary-fixed": "#ffdf93",
+                    "surface-container-lowest": "#0f0d13",
+                    "surface-container-highest": "#36343a",
+                    "background": "#070A12", // Overridden for brand base
+                    "secondary-fixed": "#e9ddff",
+                    "on-primary": "#381e72",
+                    "surface-tint": "#cfbcff",
+                    "on-error": "#690005",
+                    "primary-container": "#6750a4",
+                    "on-secondary-fixed": "#1f1635",
+                    "on-surface-variant": "#cbc4d2",
+                    "tertiary-container": "#c9a74d",
+                    "on-tertiary-fixed-variant": "#594400",
+                    "on-primary-fixed-variant": "#4f378a",
+                    "error": "#ffb4ab",
+                    "on-error-container": "#ffdad6",
+                    "surface-dim": "#141218",
+                    "surface": "#111827", // Level 1 Surface
+                    "on-tertiary": "#3e2e00",
+                    "inverse-surface": "#e6e0e9",
+                    "error-container": "#93000a",
+                    "tertiary-fixed-dim": "#e7c365",
+                    "on-tertiary-fixed": "#241a00",
+                    "on-secondary-container": "#bfb2da",
+                    "secondary-container": "#4d4465",
+                    "on-primary-container": "#e0d2ff",
+                    "primary-fixed": "#e9ddff",
+                    "on-background": "#e6e0e9",
+                    "inverse-on-surface": "#322f35",
+                    "inverse-primary": "#6750a4",
+                    "surface-container-low": "#1d1b20",
+                    "surface-container": "#211f24",
+                    "primary-fixed-dim": "#cfbcff",
+                    "tertiary": "#e7c365",
+                    "on-secondary-fixed-variant": "#4b4263",
+                    "on-primary-fixed": "#22005d",
+                    "on-tertiary-container": "#503d00",
+                    "secondary-fixed-dim": "#cdc0e9",
+                    "primary": "#cfbcff",
+                    "on-secondary": "#342b4b",
+                    "on-surface": "#e6e0e9",
+                    "outline": "#948e9c",
+                    "surface-variant": "#36343a",
+                    "outline-variant": "#494551",
+                    "surface-container-high": "#2b292f",
+                    "secondary": "#cdc0e9"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "xxl": "80px",
+                    "xl": "48px",
+                    "xs": "4px",
+                    "sm": "8px",
+                    "md": "16px",
+                    "lg": "24px"
+            },
+            "fontFamily": {
+                    "body-md": ["Inter"],
+                    "label-sm": ["Inter"],
+                    "h1": ["Geist"],
+                    "h2": ["Geist"],
+                    "body-lg": ["Inter"],
+                    "mono-code": ["JetBrains Mono"],
+                    "display": ["Geist"]
+            },
+            "fontSize": {
+                    "body-md": ["15px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "label-sm": ["13px", {"lineHeight": "1.4", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                    "h1": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                    "h2": ["24px", {"lineHeight": "1.3", "letterSpacing": "-0.01em", "fontWeight": "500"}],
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "mono-code": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "display": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-panel {
+            background: rgba(17, 24, 39, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .primary-gradient {
+            background: linear-gradient(135deg, #cfbcff 0%, #6750a4 100%);
+        }
+        .inner-glow {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen font-body-md selection:bg-primary/30">
+<!-- TopAppBar (Shell) - Contextually Simplified for Landing -->
+<header class="fixed top-0 z-50 w-full bg-surface/80 backdrop-blur-xl border-b border-outline-variant/10">
+<div class="flex justify-center items-center w-full px-lg py-md max-w-7xl mx-auto">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">security</span>
+<span class="font-display text-h2 font-bold tracking-tight text-on-surface">aesmsg</span>
+</div>
+</div>
+</header>
+<main class="pt-xxl pb-xl flex flex-col items-center justify-center min-h-screen px-md">
+<!-- The Focus Column -->
+<div class="w-full max-w-[640px] flex flex-col gap-lg">
+<!-- Hero Card: Encrypted Message State -->
+<section class="glass-panel rounded-xl p-lg inner-glow shadow-2xl overflow-hidden relative">
+<div class="absolute top-0 right-0 p-lg opacity-10">
+<span class="material-symbols-outlined text-[120px]">lock</span>
+</div>
+<div class="relative z-10">
+<div class="flex items-center gap-sm mb-md">
+<span class="px-sm py-xs rounded border border-primary/30 bg-primary/10 text-primary font-label-sm uppercase tracking-widest">
+                            Secure Link Detected
+                        </span>
+<span class="px-sm py-xs rounded border border-outline-variant/30 text-on-surface-variant font-label-sm">
+                            v2.4-AES
+                        </span>
+</div>
+<h1 class="font-h1 text-h1 mb-sm">Secure Message Found</h1>
+<p class="text-on-surface-variant text-body-lg mb-lg">
+                        This link contains an end-to-end encrypted message. To maintain privacy, decryption occurs locally on your hardware.
+                    </p>
+<!-- Success State: Key Found -->
+<div class="space-y-md">
+<div class="bg-surface-container-lowest p-md rounded-lg border border-outline-variant/20 flex items-start gap-md">
+<div class="bg-primary/20 p-sm rounded-full text-primary">
+<span class="material-symbols-outlined">verified_user</span>
+</div>
+<div>
+<h3 class="font-h2 text-body-md font-semibold text-on-surface">Hardware Key Matched</h3>
+<p class="text-on-surface-variant font-label-sm">Your private key for "Identity_Node_772" is authorized to view this content.</p>
+</div>
+</div>
+<button class="w-full primary-gradient text-on-primary py-md px-lg rounded-lg font-h2 font-semibold flex items-center justify-center gap-sm hover:shadow-[0_0_20px_rgba(207,188,255,0.3)] transition-all active:scale-[0.98]">
+<span class="material-symbols-outlined">fingerprint</span>
+                            Decrypt &amp; View Message
+                        </button>
+<p class="text-center font-label-sm text-on-surface-variant italic">
+                            A biometric authentication prompt will appear to unlock your local vault.
+                        </p>
+</div>
+</div>
+</section>
+<!-- Secondary Card: Error State / Missing Key -->
+<section class="glass-panel rounded-xl p-lg inner-glow border-error/20 bg-error-container/5">
+<div class="flex items-center gap-md mb-md">
+<div class="bg-error/20 p-sm rounded-full text-error">
+<span class="material-symbols-outlined">vpn_key_off</span>
+</div>
+<div>
+<h2 class="font-h2 text-h2 text-on-surface">Private Key Missing</h2>
+<p class="text-on-surface-variant font-body-md">Your device does not have the required private key.</p>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md mt-lg">
+<div class="bg-surface p-md rounded-lg border border-outline-variant/10 hover:border-primary/40 transition-colors group cursor-pointer">
+<div class="flex justify-between items-start mb-sm">
+<span class="material-symbols-outlined text-primary">install_mobile</span>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">arrow_forward</span>
+</div>
+<h4 class="font-h2 text-body-md font-semibold text-on-surface mb-xs">Download aesmsg</h4>
+<p class="font-label-sm text-on-surface-variant">Install the native application to manage your encrypted vaults.</p>
+</div>
+<div class="bg-surface p-md rounded-lg border border-outline-variant/10 hover:border-primary/40 transition-colors group cursor-pointer">
+<div class="flex justify-between items-start mb-sm">
+<span class="material-symbols-outlined text-primary">settings_backup_restore</span>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">arrow_forward</span>
+</div>
+<h4 class="font-h2 text-body-md font-semibold text-on-surface mb-xs">Import Backup Key</h4>
+<p class="font-label-sm text-on-surface-variant">Restore access using a physical recovery seed or cloud backup link.</p>
+</div>
+</div>
+</section>
+<!-- Technical Metadata Bento Grid -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-sm">
+<div class="glass-panel p-md rounded-lg flex flex-col items-center justify-center text-center">
+<span class="font-label-sm uppercase text-on-surface-variant mb-xs">Expires In</span>
+<span class="font-mono-code text-primary">23:58:12</span>
+</div>
+<div class="glass-panel p-md rounded-lg flex flex-col items-center justify-center text-center">
+<span class="font-label-sm uppercase text-on-surface-variant mb-xs">Views Left</span>
+<span class="font-mono-code text-primary">1 of 1</span>
+</div>
+<div class="glass-panel p-md rounded-lg flex flex-col items-center justify-center text-center">
+<span class="font-label-sm uppercase text-on-surface-variant mb-xs">Algorithm</span>
+<span class="font-mono-code text-primary">ECC-X25519</span>
+</div>
+</div>
+<!-- Footer Compliance/Trust -->
+<footer class="mt-xl text-center space-y-md">
+<div class="flex items-center justify-center gap-lg opacity-40">
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-[18px]">verified</span>
+<span class="font-label-sm">ISO 27001 Certified</span>
+</div>
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-[18px]">security_update_good</span>
+<span class="font-label-sm">No Logs Policy</span>
+</div>
+</div>
+<p class="font-label-sm text-on-surface-variant/60">
+                    © 2024 aesmsg Labs. All messages are encrypted locally. We never see your data.
+                </p>
+</footer>
+</div>
+</main>
+<!-- Visual Background Element -->
+<div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+<div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-primary/5 blur-[120px]"></div>
+<div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-secondary-container/5 blur-[120px]"></div>
+</div>
+</body></html>

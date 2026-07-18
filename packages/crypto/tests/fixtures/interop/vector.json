@@ -1,0 +1,19 @@
+{
+  "_comment": "aesmsg interop vector. Regenerated only when the suite, wire format, or AAD encoding changes. Do not edit by hand.",
+  "suite": "X25519-HKDF-SHA256 + HKDF-SHA256 + AES-256-GCM, mode_base",
+  "wire_version": 1,
+  "wire_suite_byte": 1,
+  "aad_version": 1,
+  "ikm_hex": "4242424242424242424242424242424242424242424242424242424242424242",
+  "recipient_pubkey_raw_hex": "ae3bf1cd87c2d2ed25af4a1a239eed04a990f00e7403e4c8065927de010fd17a",
+  "recipient_privkey_raw_hex": "9da300999027ec7ab4e1ed2c0d39ce965d9d2dec29a0c88d4ab6cb527c588b3d",
+  "aad_context": {
+    "linkId": "interop-vector16",
+    "createdAtMs": 1700000000000,
+    "expiresAtMs": 1700086400000,
+    "maxOpens": 1
+  },
+  "aad_encoded_hex": "0101010010696e7465726f702d766563746f723136e941d871514e3a01f0b174715b8d975e6e942dbfa1d1a9ad68b478d977d49d540000018bcfe568000000018bd50bc40000000001",
+  "plaintext_utf8": "hello from python interop",
+  "ciphertext_blob_hex": "010146bc7277f028f1c6420f792c28717783038e40b9f000b85e5f76ab74b99a981ed188487822c4cc90874c908c858356e588a79a94503ae8ff2c59232ec25e4dee911dafe60efac9c81c"
+}

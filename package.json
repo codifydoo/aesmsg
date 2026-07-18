@@ -1,0 +1,35 @@
+{
+  "name": "aesmsg",
+  "version": "0.0.0",
+  "private": true,
+  "license": "Apache-2.0",
+  "description": "Zero-knowledge encryption layer for existing channels",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "packageManager": "pnpm@10.15.0",
+  "scripts": {
+    "build": "pnpm -r build",
+    "dev": "pnpm --filter web dev",
+    "start": "pnpm --filter web start",
+    "dev:api": "pnpm --filter @aesmsg/api dev",
+    "api:prod": "DATABASE_URL=postgres://aesmsg:aesmsg@localhost:55432/aesmsg pnpm migrate && NODE_ENV=production DATABASE_URL=postgres://aesmsg:aesmsg@localhost:55432/aesmsg REDIS_URL=redis://localhost:56379/0 AESMSG_PUBLIC_LINK_ORIGIN=https://aesmsg.com RATE_LIMIT_IP_SALT=dev-only-salt-change-me-0000000000 pnpm --filter @aesmsg/api start",
+    "worker:dev": "pnpm --filter @aesmsg/worker dev",
+    "worker:prod": "DATABASE_URL=postgres://aesmsg:aesmsg@localhost:55432/aesmsg pnpm migrate && DATABASE_URL=postgres://aesmsg:aesmsg@localhost:55432/aesmsg AESMSG_EXPIRY_SWEEP_INTERVAL_MS=900000 pnpm --filter @aesmsg/worker start",
+    "migrate": "pnpm --filter @aesmsg/server-store migrate",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "format": "biome format --write .",
+    "test": "pnpm -r test",
+    "db:up": "docker compose up -d --wait",
+    "db:down": "docker compose down",
+    "db:reset": "docker compose down -v",
+    "test:integration": "TEST_DATABASE_URL=postgres://aesmsg:aesmsg@localhost:55432/aesmsg TEST_REDIS_URL=redis://localhost:56379/0 pnpm --filter @aesmsg/server-store test",
+    "web:prod": "pnpm --filter web build && pnpm --filter web start"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.14",
+    "typescript": "^5.7.0"
+  }
+}

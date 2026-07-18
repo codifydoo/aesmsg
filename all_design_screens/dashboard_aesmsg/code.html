@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Geist:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-background": "#e6e0e9",
+                    "on-error-container": "#ffdad6",
+                    "tertiary-fixed": "#ffdf93",
+                    "primary-fixed": "#e9ddff",
+                    "on-primary": "#381e72",
+                    "on-secondary": "#342b4b",
+                    "error-container": "#93000a",
+                    "surface-container": "#211f24",
+                    "surface-container-lowest": "#0f0d13",
+                    "surface-container-low": "#1d1b20",
+                    "surface-container-high": "#2b292f",
+                    "on-tertiary-container": "#503d00",
+                    "tertiary-fixed-dim": "#e7c365",
+                    "tertiary-container": "#c9a74d",
+                    "surface-container-highest": "#36343a",
+                    "surface": "#141218",
+                    "on-tertiary-fixed": "#241a00",
+                    "surface-tint": "#cfbcff",
+                    "on-surface-variant": "#cbc4d2",
+                    "surface-dim": "#141218",
+                    "primary-container": "#6750a4",
+                    "secondary-container": "#4d4465",
+                    "on-surface": "#e6e0e9",
+                    "on-primary-fixed-variant": "#4f378a",
+                    "on-secondary-container": "#bfb2da",
+                    "inverse-surface": "#e6e0e9",
+                    "error": "#ffb4ab",
+                    "outline": "#948e9c",
+                    "surface-variant": "#36343a",
+                    "secondary": "#cdc0e9",
+                    "on-tertiary-fixed-variant": "#594400",
+                    "surface-bright": "#3b383e",
+                    "on-primary-fixed": "#22005d",
+                    "on-error": "#690005",
+                    "on-secondary-fixed-variant": "#4b4263",
+                    "inverse-primary": "#6750a4",
+                    "inverse-on-surface": "#322f35",
+                    "primary": "#cfbcff",
+                    "on-tertiary": "#3e2e00",
+                    "tertiary": "#e7c365",
+                    "on-primary-container": "#e0d2ff",
+                    "outline-variant": "#494551",
+                    "secondary-fixed-dim": "#cdc0e9",
+                    "primary-fixed-dim": "#cfbcff",
+                    "on-secondary-fixed": "#1f1635",
+                    "secondary-fixed": "#e9ddff",
+                    "background": "#141218"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "lg": "24px",
+                    "xs": "4px",
+                    "sm": "8px",
+                    "xxl": "80px",
+                    "md": "16px",
+                    "xl": "48px"
+            },
+            "fontFamily": {
+                    "body-lg": ["Inter"],
+                    "label-sm": ["Inter"],
+                    "h1": ["Geist"],
+                    "body-md": ["Inter"],
+                    "mono-code": ["JetBrains Mono"],
+                    "h2": ["Geist"],
+                    "display": ["Geist"]
+            },
+            "fontSize": {
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "label-sm": ["13px", {"lineHeight": "1.4", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                    "h1": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                    "body-md": ["15px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "mono-code": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "h2": ["24px", {"lineHeight": "1.3", "letterSpacing": "-0.01em", "fontWeight": "500"}],
+                    "display": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-panel {
+            background: rgba(17, 24, 39, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .primary-gradient {
+            background: linear-gradient(135deg, #cfbcff 0%, #6750a4 100%);
+        }
+        .glow-hover:hover {
+            box-shadow: 0 0 15px rgba(207, 188, 255, 0.3);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md overflow-x-hidden">
+<!-- Sidebar Navigation (SideNavBar) -->
+<aside class="hidden md:flex flex-col py-xl space-y-md h-screen w-64 fixed left-0 top-0 bg-surface-container-low border-r border-outline-variant/10 z-50">
+<div class="px-md mb-xl">
+<h1 class="font-display text-h2 font-bold text-on-surface">aesmsg</h1>
+<p class="font-label-sm text-label-sm uppercase tracking-widest text-primary mt-xs">Verified Session</p>
+</div>
+<nav class="flex-1 space-y-xs">
+<a class="flex items-center px-lg py-md text-primary bg-primary-container/10 border-r-2 border-primary transition-all duration-300 ease-in-out" href="#">
+<span class="material-symbols-outlined mr-md">dashboard</span>
+<span class="font-label-sm text-label-sm uppercase tracking-widest">Dashboard</span>
+</a>
+<a class="flex items-center px-lg py-md text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all duration-300 ease-in-out" href="#">
+<span class="material-symbols-outlined mr-md">add_box</span>
+<span class="font-label-sm text-label-sm uppercase tracking-widest">New Message</span>
+</a>
+<a class="flex items-center px-lg py-md text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all duration-300 ease-in-out" href="#">
+<span class="material-symbols-outlined mr-md">link</span>
+<span class="font-label-sm text-label-sm uppercase tracking-widest">Links</span>
+</a>
+<a class="flex items-center px-lg py-md text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all duration-300 ease-in-out" href="#">
+<span class="material-symbols-outlined mr-md">group</span>
+<span class="font-label-sm text-label-sm uppercase tracking-widest">Contacts</span>
+</a>
+<a class="flex items-center px-lg py-md text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all duration-300 ease-in-out" href="#">
+<span class="material-symbols-outlined mr-md">vpn_key</span>
+<span class="font-label-sm text-label-sm uppercase tracking-widest">Keys</span>
+</a>
+<a class="flex items-center px-lg py-md text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all duration-300 ease-in-out" href="#">
+<span class="material-symbols-outlined mr-md">settings</span>
+<span class="font-label-sm text-label-sm uppercase tracking-widest">Settings</span>
+</a>
+</nav>
+<div class="px-md mt-auto pt-md border-t border-outline-variant/10">
+<button class="w-full primary-gradient text-on-primary py-md rounded-lg font-label-sm uppercase tracking-widest glow-hover transition-all active:scale-95">
+                New Encryption
+            </button>
+</div>
+</aside>
+<!-- Top AppBar Mobile -->
+<header class="md:hidden flex justify-between items-center w-full px-lg py-md bg-surface/80 backdrop-blur-xl border-b border-outline-variant/10 fixed top-0 z-50">
+<h1 class="font-display text-h1 font-bold tracking-tight text-on-surface">aesmsg</h1>
+<div class="flex items-center space-x-md">
+<span class="material-symbols-outlined text-primary">security</span>
+<span class="material-symbols-outlined text-on-surface-variant">notifications</span>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="md:ml-64 min-h-screen pt-xxl md:pt-xl px-lg pb-xxl">
+<div class="max-w-7xl mx-auto">
+<!-- Header Section -->
+<header class="flex flex-col md:flex-row md:items-end justify-between mb-xl gap-md">
+<div>
+<h2 class="font-h1 text-h1 text-on-surface">Vault Dashboard</h2>
+<p class="text-on-surface-variant font-body-md">Active encryption environment: <span class="font-mono-code text-primary">NODE_SEC_772</span></p>
+</div>
+<!-- Security Status Card -->
+<div class="glass-panel px-lg py-md rounded-xl flex items-center gap-md border-emerald-500/20 bg-emerald-500/5">
+<div class="relative">
+<span class="material-symbols-outlined text-emerald-400" data-weight="fill">verified_user</span>
+<div class="absolute -top-1 -right-1 w-3 h-3 bg-emerald-500 rounded-full animate-pulse"></div>
+</div>
+<div>
+<p class="font-label-sm text-emerald-400 uppercase tracking-tighter">System Integrity</p>
+<p class="font-body-md text-on-surface">Private key available on this device</p>
+</div>
+</div>
+</header>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-lg">
+<!-- Create Encrypted Message (Primary CTA) -->
+<div class="md:col-span-8 glass-panel p-xl rounded-xl relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-xl opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-[120px]" data-weight="fill">enhanced_encryption</span>
+</div>
+<div class="relative z-10">
+<h3 class="font-h2 text-h2 text-on-surface mb-md">Create Encrypted Message</h3>
+<p class="text-on-surface-variant font-body-lg mb-xl max-w-lg">
+                            Secure your communication with industry-standard AES-256 encryption. Messages are decrypted only by the intended recipient's private key.
+                        </p>
+<div class="flex flex-wrap gap-md">
+<button class="primary-gradient px-xl py-md rounded-lg text-on-primary font-label-sm uppercase tracking-widest glow-hover active:scale-95 transition-all">
+                                Initialize Message
+                            </button>
+<button class="bg-surface-container-high px-xl py-md rounded-lg text-on-surface font-label-sm uppercase tracking-widest border border-outline-variant hover:bg-surface-bright transition-all">
+                                Advanced Options
+                            </button>
+</div>
+</div>
+</div>
+<!-- Quick Stats / Fingerprint -->
+<div class="md:col-span-4 glass-panel p-lg rounded-xl flex flex-col justify-between">
+<div>
+<p class="font-label-sm text-on-surface-variant uppercase mb-md">Local Public Key</p>
+<div class="bg-surface-container-lowest p-md rounded-lg border border-outline-variant/10 font-mono-code text-xs text-primary break-all">
+                            0x7F2A...B9C1_RSA_4096_SHA512_SECURE_VAULT_MSG
+                        </div>
+</div>
+<div class="mt-lg">
+<div class="flex justify-between items-center mb-xs">
+<span class="text-on-surface-variant font-label-sm uppercase">Cloud Sync</span>
+<span class="text-emerald-400 font-label-sm uppercase">Active</span>
+</div>
+<div class="w-full h-1 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="w-4/5 h-full primary-gradient"></div>
+</div>
+</div>
+</div>
+<!-- Recent Secure Links -->
+<div class="md:col-span-7 glass-panel p-lg rounded-xl">
+<div class="flex justify-between items-center mb-xl">
+<h3 class="font-h2 text-h2 text-on-surface">Recent Secure Links</h3>
+<a class="text-primary font-label-sm uppercase hover:underline" href="#">View All</a>
+</div>
+<div class="space-y-md">
+<!-- Link Item -->
+<div class="flex items-center justify-between p-md bg-surface-container-low rounded-lg border border-outline-variant/10 hover:bg-surface-container-high transition-all">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">lock_reset</span>
+</div>
+<div>
+<p class="font-body-md text-on-surface">Financial_Briefing_Q3.pdf</p>
+<p class="text-xs text-on-surface-variant">Expires in 24 hours</p>
+</div>
+</div>
+<div class="flex items-center gap-lg">
+<span class="px-md py-xs rounded-full border border-emerald-500/30 text-emerald-400 font-label-sm uppercase text-[10px]">Active</span>
+<button class="text-on-surface-variant hover:text-primary"><span class="material-symbols-outlined">content_copy</span></button>
+</div>
+</div>
+<!-- Link Item -->
+<div class="flex items-center justify-between p-md bg-surface-container-low rounded-lg border border-outline-variant/10 hover:bg-surface-container-high transition-all">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 rounded-lg bg-surface-container-highest flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface-variant">history</span>
+</div>
+<div>
+<p class="font-body-md text-on-surface">Draft_Contract_v2.msg</p>
+<p class="text-xs text-on-surface-variant">Expired Oct 12</p>
+</div>
+</div>
+<div class="flex items-center gap-lg">
+<span class="px-md py-xs rounded-full border border-outline-variant/30 text-on-surface-variant font-label-sm uppercase text-[10px]">Expired</span>
+<button class="text-on-surface-variant hover:text-primary"><span class="material-symbols-outlined">delete</span></button>
+</div>
+</div>
+</div>
+</div>
+<!-- Verified Contacts -->
+<div class="md:col-span-5 glass-panel p-lg rounded-xl">
+<div class="flex justify-between items-center mb-xl">
+<h3 class="font-h2 text-h2 text-on-surface">Verified Contacts</h3>
+<button class="w-8 h-8 rounded-full bg-primary-container/20 text-primary flex items-center justify-center hover:bg-primary-container/40 transition-all">
+<span class="material-symbols-outlined">person_add</span>
+</button>
+</div>
+<div class="grid grid-cols-1 gap-md">
+<!-- Contact -->
+<div class="flex items-center gap-md p-md hover:bg-surface-container-high rounded-xl transition-all cursor-pointer">
+<img alt="Verified Contact" class="w-12 h-12 rounded-full object-cover border-2 border-emerald-500" data-alt="A professional headshot of a middle-aged man with short dark hair and a confident, friendly expression. He is wearing a minimalist dark navy blazer against a neutral, high-key architectural background with soft natural lighting. The image style is polished and executive, emphasizing trust and clarity in a modern corporate setting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuALvhxRTOVjYTOTAeFg9iEuvLxjJaCLq7q9O11KDPxTw8Eeu2gFgQVGhiF5_UpOqwqLW6Eci6zlpkPtBMPCK0322GJxA8aFETKdTkknpYhpqp4UJ9-Ht2EaftzOLGybFYH4FCx-jKVLEtCCXjIkMDTJwusr40N6INraMhPDBiEPUYoiVwj-rm3gA-W5VUZqaVwRdQ-RJurd1kJbz6X4YsDBRm6Vg-F1g4gyttbrEoSQWjrIKv7qp6yKbd3PV1l2aOOtNSrHZwqP1Ms"/>
+<div class="flex-1">
+<div class="flex items-center gap-xs">
+<p class="font-body-md text-on-surface">Marcus Sterling</p>
+<span class="material-symbols-outlined text-primary text-sm" data-weight="fill">verified</span>
+</div>
+<p class="text-xs text-on-surface-variant">Key Fingerprint: 88A1...F290</p>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">chat</span>
+</div>
+<!-- Contact -->
+<div class="flex items-center gap-md p-md hover:bg-surface-container-high rounded-xl transition-all cursor-pointer">
+<img alt="Verified Contact" class="w-12 h-12 rounded-full object-cover border-2 border-emerald-500" data-alt="A portrait of a professional woman with a poised and intelligent gaze, set in a sleek, glass-walled office environment during the golden hour. The soft evening light creates warm highlights while maintaining a clean, high-contrast dark-mode aesthetic. Her appearance is professional and authoritative, suitable for a high-security tech platform." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDZOSeJVEYuEav-fS13SJ-Mu2HP44-tGd_MFYlB7gIR3X7YwP2iCjzboIUDx_zzAywG9Dz0KhiZY7ujj9IWt5Fa1WrRnmR4unonnyUR_i6PVowCJ9ILkYtlY1sEMEyEEI22k1LuEBMkwUPhept35iN1ZH-dlPfRGa3u7P2rwKuse7oSeGC6kHrDC8er2iiOcxTpCDWaUR7mM0p-07kz5i8nVZdLuzxoDx0xXGhIVfzZzk83FtPVn1k7t0VXzbnToSRKBosHlbUV5PM"/>
+<div class="flex-1">
+<div class="flex items-center gap-xs">
+<p class="font-body-md text-on-surface">Elena Rodriguez</p>
+<span class="material-symbols-outlined text-primary text-sm" data-weight="fill">verified</span>
+</div>
+<p class="text-xs text-on-surface-variant">Key Fingerprint: 44C2...E331</p>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">chat</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation Mobile (BottomNavBar) -->
+<nav class="md:hidden flex justify-around items-center h-xxl bg-surface/90 backdrop-blur-2xl border-t border-outline-variant/20 fixed bottom-0 w-full z-50 rounded-t-xl shadow-lg">
+<a class="flex flex-col items-center justify-center text-primary transition-transform active:scale-90 tap-highlight-transparent" href="#">
+<span class="material-symbols-outlined">lock</span>
+<span class="font-label-sm text-label-sm font-medium">Encrypt</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant transition-transform active:scale-90 tap-highlight-transparent" href="#">
+<span class="material-symbols-outlined">link</span>
+<span class="font-label-sm text-label-sm font-medium">Links</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant transition-transform active:scale-90 tap-highlight-transparent" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-label-sm text-label-sm font-medium">Contacts</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant transition-transform active:scale-90 tap-highlight-transparent" href="#">
+<span class="material-symbols-outlined">vpn_key</span>
+<span class="font-label-sm text-label-sm font-medium">Keys</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant transition-transform active:scale-90 tap-highlight-transparent" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-sm text-label-sm font-medium">Settings</span>
+</a>
+</nav>
+</body></html>

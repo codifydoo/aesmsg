@@ -1,0 +1,223 @@
+@import "tailwindcss";
+@import "@aesmsg/design-tokens/theme.css";
+
+@source "../../../packages/ui/src/**/*.{ts,tsx}";
+
+html,
+body {
+  background: var(--color-background);
+  color: var(--color-on-surface);
+  font-family: var(--font-sans);
+  min-height: 100dvh;
+}
+
+body {
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Self-hosted Material Symbols (subset). Vendored under public/fonts/ so the site
+   makes no runtime request to fonts.googleapis.com / fonts.gstatic.com. Icons
+   render via ligatures; see public/fonts/README.md. */
+@font-face {
+  font-family: "Material Symbols Outlined";
+  font-style: normal;
+  font-weight: 100 700;
+  font-display: block;
+  src: url("/fonts/material-symbols-outlined.woff2") format("woff2");
+}
+
+.material-symbols-outlined {
+  /* biome-ignore lint/a11y/useGenericFontNames: icon font — a generic text fallback would render the raw ligature name */
+  font-family: "Material Symbols Outlined";
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  font-feature-settings: "liga";
+  -webkit-font-feature-settings: "liga";
+  -webkit-font-smoothing: antialiased;
+  font-variation-settings:
+    "FILL" 0,
+    "wght" 400,
+    "GRAD" 0,
+    "opsz" 24;
+}
+
+/* ============================================================
+   Marketing landing page (src/landing/*) — design port.
+
+   The ported components keep the design's short token names
+   (var(--primary), var(--sc-low), …). These are aliased here to
+   the app's @aesmsg/design-tokens --color-* values so a single
+   `.landing-root` wrapper localises them. Helper classes are
+   scoped under .landing-root so they never leak into the app.
+   ============================================================ */
+.landing-root {
+  --bg: var(--color-surface);
+  --sc-lowest: var(--color-surface-container-lowest);
+  --sc-low: var(--color-surface-container-low);
+  --sc: var(--color-surface-container);
+  --sc-high: var(--color-surface-container-high);
+  --sc-highest: var(--color-surface-container-highest);
+  --on: var(--color-on-surface);
+  --on-var: var(--color-on-surface-variant);
+  --outline: var(--color-outline);
+  --outline-v: var(--color-outline-variant);
+  --primary: var(--color-primary);
+  --on-primary: var(--color-on-primary);
+  --primary-c: var(--color-primary-container);
+  --secondary: var(--color-secondary);
+  --tertiary: var(--color-tertiary);
+  --error: var(--color-error);
+  --emerald: #6fd29a;
+  background: var(--bg);
+  color: var(--on);
+  overflow-x: hidden;
+}
+
+.landing-root .t-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.landing-root .t-label {
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* glass surface — brand-tinted, depth via luminance + 1px border, no drop shadow */
+.landing-root .glass {
+  position: relative;
+  background: rgba(20, 18, 24, 0.6);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  backdrop-filter: blur(20px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* matte surface card */
+.landing-root .matte {
+  background: var(--sc-low);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-top-color: rgba(255, 255, 255, 0.1);
+}
+
+/* primary gradient button */
+.landing-root .btn-primary {
+  background: linear-gradient(135deg, #cfbcff 0%, #cdc0e9 100%);
+  color: var(--on-primary);
+  border: 1px solid transparent;
+  transition:
+    box-shadow 0.25s ease,
+    transform 0.15s ease;
+}
+.landing-root .btn-primary:hover {
+  box-shadow: 0 0 15px rgba(207, 188, 255, 0.4);
+  transform: translateY(-1px);
+}
+.landing-root .btn-primary:active {
+  transform: translateY(0);
+}
+
+/* glass button */
+.landing-root .btn-glass {
+  background: rgba(20, 18, 24, 0.5);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--on);
+  transition:
+    border-color 0.25s ease,
+    background 0.25s ease,
+    transform 0.15s ease;
+}
+.landing-root .btn-glass:hover {
+  border-color: rgba(207, 188, 255, 0.45);
+  background: rgba(43, 41, 47, 0.5);
+  transform: translateY(-1px);
+}
+
+/* focus-visible ring for interactive elements */
+.landing-root a:focus-visible,
+.landing-root button:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* hover-lift trust card */
+.landing-root .trust-card {
+  transition:
+    border-color 0.25s ease,
+    transform 0.25s ease,
+    background 0.25s ease;
+}
+.landing-root .trust-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(207, 188, 255, 0.55);
+  background: var(--sc);
+}
+
+/* faint connector line between process steps */
+.landing-root .connector {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--outline-v) 12%,
+    var(--outline-v) 88%,
+    transparent
+  );
+}
+
+/* subtle reveal-on-scroll */
+.landing-root .reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition:
+    opacity 0.7s ease,
+    transform 0.7s ease;
+}
+.landing-root .reveal.in {
+  opacity: 1;
+  transform: none;
+}
+
+.landing-root ::selection {
+  background: rgba(207, 188, 255, 0.28);
+  color: #fff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-root .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* responsive stacking */
+@media (max-width: 880px) {
+  .landing-root .bento-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+@media (max-width: 720px) {
+  .landing-root .footer-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+  .landing-root .footer-grid > div:first-child {
+    grid-column: 1 / -1;
+  }
+}

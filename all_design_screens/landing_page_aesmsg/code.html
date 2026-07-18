@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;family=Geist:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-background": "#e6e0e9",
+                    "on-error-container": "#ffdad6",
+                    "tertiary-fixed": "#ffdf93",
+                    "primary-fixed": "#e9ddff",
+                    "on-primary": "#381e72",
+                    "on-secondary": "#342b4b",
+                    "error-container": "#93000a",
+                    "surface-container": "#211f24",
+                    "surface-container-lowest": "#0f0d13",
+                    "surface-container-low": "#1d1b20",
+                    "surface-container-high": "#2b292f",
+                    "on-tertiary-container": "#503d00",
+                    "tertiary-fixed-dim": "#e7c365",
+                    "tertiary-container": "#c9a74d",
+                    "surface-container-highest": "#36343a",
+                    "surface": "#141218",
+                    "on-tertiary-fixed": "#241a00",
+                    "surface-tint": "#cfbcff",
+                    "on-surface-variant": "#cbc4d2",
+                    "surface-dim": "#141218",
+                    "primary-container": "#6750a4",
+                    "secondary-container": "#4d4465",
+                    "on-surface": "#e6e0e9",
+                    "on-primary-fixed-variant": "#4f378a",
+                    "on-secondary-container": "#bfb2da",
+                    "inverse-surface": "#e6e0e9",
+                    "error": "#ffb4ab",
+                    "outline": "#948e9c",
+                    "surface-variant": "#36343a",
+                    "secondary": "#cdc0e9",
+                    "on-tertiary-fixed-variant": "#594400",
+                    "surface-bright": "#3b383e",
+                    "on-primary-fixed": "#22005d",
+                    "on-error": "#690005",
+                    "on-secondary-fixed-variant": "#4b4263",
+                    "inverse-primary": "#6750a4",
+                    "inverse-on-surface": "#322f35",
+                    "primary": "#cfbcff",
+                    "on-tertiary": "#3e2e00",
+                    "tertiary": "#e7c365",
+                    "on-primary-container": "#e0d2ff",
+                    "outline-variant": "#494551",
+                    "secondary-fixed-dim": "#cdc0e9",
+                    "primary-fixed-dim": "#cfbcff",
+                    "on-secondary-fixed": "#1f1635",
+                    "secondary-fixed": "#e9ddff",
+                    "background": "#141218"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "lg": "24px",
+                    "xs": "4px",
+                    "sm": "8px",
+                    "xxl": "80px",
+                    "md": "16px",
+                    "xl": "48px"
+            },
+            "fontFamily": {
+                    "body-lg": ["Inter"],
+                    "label-sm": ["Inter"],
+                    "h1": ["Geist"],
+                    "body-md": ["Inter"],
+                    "mono-code": ["JetBrains Mono"],
+                    "h2": ["Geist"],
+                    "display": ["Geist"]
+            },
+            "fontSize": {
+                    "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "label-sm": ["13px", {"lineHeight": "1.4", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                    "h1": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                    "body-md": ["15px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "mono-code": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                    "h2": ["24px", {"lineHeight": "1.3", "letterSpacing": "-0.01em", "fontWeight": "500"}],
+                    "display": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .glass-panel {
+            background: rgba(17, 24, 39, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+        }
+        .btn-primary-gradient {
+            background: linear-gradient(135deg, #cfbcff 0%, #cdc0e9 100%);
+            transition: all 0.3s ease;
+        }
+        .btn-primary-gradient:hover {
+            box-shadow: 0 0 15px rgba(207, 188, 255, 0.4);
+            transform: translateY(-1px);
+        }
+        .step-connector {
+            background: linear-gradient(90deg, transparent, #494551 50%, transparent);
+            height: 1px;
+            width: 100%;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md overflow-x-hidden">
+<!-- Top Navigation -->
+<header class="bg-surface/80 backdrop-blur-xl border-b border-outline-variant/10 docked full-width top-0 z-50 fixed w-full">
+<div class="flex justify-between items-center w-full px-lg py-md max-w-7xl mx-auto">
+<div class="font-display text-h1 font-bold tracking-tight text-on-surface">aesmsg</div>
+<nav class="hidden md:flex items-center space-x-lg">
+<a class="text-primary font-bold font-label-sm uppercase tracking-widest transition-colors duration-200" href="#">Dashboard</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors duration-200 font-label-sm uppercase tracking-widest" href="#">Pricing</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors duration-200 font-label-sm uppercase tracking-widest" href="#">Docs</a>
+<button class="btn-primary-gradient text-on-primary font-bold px-lg py-sm rounded-lg active:scale-95 transition-transform">Get Started</button>
+</nav>
+<div class="flex items-center space-x-md text-primary">
+<span class="material-symbols-outlined cursor-pointer" data-icon="security">security</span>
+<span class="material-symbols-outlined cursor-pointer" data-icon="notifications">notifications</span>
+</div>
+</div>
+</header>
+<main class="pt-xxl">
+<!-- Hero Section -->
+<section class="relative px-md py-xl md:py-xxl max-w-7xl mx-auto flex flex-col items-center text-center">
+<div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-primary/10 blur-[120px] rounded-full -z-10"></div>
+<span class="inline-flex items-center px-md py-xs rounded-full border border-primary/20 bg-primary/5 text-primary text-label-sm mb-lg">
+<span class="material-symbols-outlined text-[16px] mr-xs" data-icon="verified_user" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+                Military-Grade Privacy for Everyone
+            </span>
+<h1 class="font-display text-display text-on-surface max-w-4xl mb-md">
+                Encrypted links for private messages and files.
+            </h1>
+<p class="font-body-lg text-on-surface-variant max-w-2xl mb-xl">
+                Encrypt before you send. Share through any app. Only the intended recipient can decrypt.
+            </p>
+<div class="flex flex-col sm:flex-row gap-md">
+<button class="btn-primary-gradient text-on-primary font-bold px-xl py-md rounded-xl text-body-md active:scale-95 transition-all">
+                    Create Secure Link
+                </button>
+<button class="glass-panel text-on-surface font-medium px-xl py-md rounded-xl border border-outline-variant/30 hover:bg-white/5 active:scale-95 transition-all">
+                    How it Works
+                </button>
+</div>
+</section>
+<!-- 3-Step Visual Process -->
+<section class="px-md py-xl max-w-7xl mx-auto">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-xl relative">
+<!-- Step 1 -->
+<div class="flex flex-col items-center text-center group">
+<div class="w-20 h-20 glass-panel rounded-2xl flex items-center justify-center mb-lg border-primary/30 group-hover:scale-110 transition-transform duration-500">
+<span class="material-symbols-outlined text-primary text-[40px]" data-icon="lock_open">lock_open</span>
+</div>
+<div class="text-primary font-mono-code mb-xs">01. LOCAL ENCRYPTION</div>
+<h3 class="font-h2 text-h2 text-on-surface mb-sm">Encrypt locally</h3>
+<p class="text-on-surface-variant font-body-md">Your data is locked in your browser using AES-256 before it ever touches our servers.</p>
+</div>
+<!-- Step 2 -->
+<div class="flex flex-col items-center text-center group relative">
+<div class="hidden md:block absolute -left-1/4 top-10 w-1/2 step-connector opacity-20"></div>
+<div class="w-20 h-20 glass-panel rounded-2xl flex items-center justify-center mb-lg border-primary/30 group-hover:scale-110 transition-transform duration-500">
+<span class="material-symbols-outlined text-primary text-[40px]" data-icon="ios_share">ios_share</span>
+</div>
+<div class="text-primary font-mono-code mb-xs">02. UNIVERSAL SHARING</div>
+<h3 class="font-h2 text-h2 text-on-surface mb-sm">Share link anywhere</h3>
+<div class="flex space-x-md mb-md justify-center opacity-70">
+<span class="material-symbols-outlined" data-icon="forum">forum</span>
+<span class="material-symbols-outlined" data-icon="chat">chat</span>
+<span class="material-symbols-outlined" data-icon="alternate_email">alternate_email</span>
+</div>
+<p class="text-on-surface-variant font-body-md">Send the link via Slack, WhatsApp, or iMessage. The platform only sees random data.</p>
+<div class="hidden md:block absolute -right-1/4 top-10 w-1/2 step-connector opacity-20"></div>
+</div>
+<!-- Step 3 -->
+<div class="flex flex-col items-center text-center group">
+<div class="w-20 h-20 glass-panel rounded-2xl flex items-center justify-center mb-lg border-primary/30 group-hover:scale-110 transition-transform duration-500">
+<span class="material-symbols-outlined text-primary text-[40px]" data-icon="key">key</span>
+</div>
+<div class="text-primary font-mono-code mb-xs">03. PRIVATE DECRYPT</div>
+<h3 class="font-h2 text-h2 text-on-surface mb-sm">Recipient decrypts</h3>
+<p class="text-on-surface-variant font-body-md">Only the person with the correct link and optional passphrase can unlock the message.</p>
+</div>
+</div>
+</section>
+<!-- Product Preview / Bento Grid Section -->
+<section class="px-md py-xl max-w-7xl mx-auto">
+<div class="grid grid-cols-12 gap-lg h-auto md:h-[600px]">
+<div class="col-span-12 md:col-span-8 glass-panel rounded-3xl p-xl overflow-hidden relative group">
+<div class="absolute top-0 right-0 p-lg">
+<span class="bg-emerald-500/10 text-emerald-400 text-label-sm border border-emerald-500/20 px-sm py-xs rounded">Status: Protected</span>
+</div>
+<h4 class="font-h1 text-h1 text-on-surface mb-md">Zero-Knowledge Architecture</h4>
+<p class="text-on-surface-variant font-body-lg max-w-md mb-xl">We don't hold the keys. We don't see your messages. We can't decrypt your files even if we wanted to.</p>
+<div class="w-full bg-surface-container-lowest rounded-xl border border-outline-variant/30 p-lg font-mono-code text-primary relative shadow-2xl">
+<div class="flex items-center space-x-sm mb-md border-b border-outline-variant/10 pb-sm">
+<div class="w-3 h-3 rounded-full bg-error/50"></div>
+<div class="w-3 h-3 rounded-full bg-tertiary/50"></div>
+<div class="w-3 h-3 rounded-full bg-emerald-500/50"></div>
+</div>
+<div class="text-label-sm opacity-50 mb-sm">Encrypted Message Payload</div>
+<div class="break-all text-on-surface text-[12px] leading-relaxed">
+                            U2FsdGVkX19NckfLz8oX6yR8M+hS1D2W/R6fG+vQ8M4Pz9L5K9J3Q2W/R6fG+vQ8M4Pz9L5K9J3U2FsdGVkX19NckfLz8oX6yR8M+hS1D2W/R6fG+vQ8M4Pz9L5K9J3Q2W/R6fG+vQ8M4Pz9L5K9J3...
+                        </div>
+</div>
+</div>
+<div class="col-span-12 md:col-span-4 grid grid-rows-2 gap-lg">
+<div class="glass-panel rounded-3xl p-lg flex flex-col justify-center">
+<span class="material-symbols-outlined text-tertiary mb-sm" data-icon="timer">timer</span>
+<h5 class="font-h2 text-h2 text-on-surface mb-xs">Self-Destruct</h5>
+<p class="text-on-surface-variant text-body-md">Set messages to burn after reading or after a specific time.</p>
+</div>
+<div class="glass-panel rounded-3xl p-lg flex flex-col justify-center">
+<span class="material-symbols-outlined text-primary mb-sm" data-icon="fingerprint">fingerprint</span>
+<h5 class="font-h2 text-h2 text-on-surface mb-xs">Biometric Unlock</h5>
+<p class="text-on-surface-variant text-body-md">Require FaceID or TouchID before decryption on mobile devices.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Trust Section -->
+<section class="px-md py-xl md:py-xxl bg-surface-container-low/50">
+<div class="max-w-7xl mx-auto">
+<div class="text-center mb-xl">
+<h2 class="font-display text-display text-on-surface mb-sm">Trust Principles</h2>
+<p class="text-on-surface-variant font-body-lg">Security is not a feature, it's our foundation.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-4 gap-md">
+<!-- Trust Card 1 -->
+<div class="p-lg rounded-2xl border border-outline-variant/10 hover:border-primary/30 transition-all group">
+<div class="mb-md text-on-surface-variant group-hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[32px]" data-icon="visibility_off">visibility_off</span>
+</div>
+<h6 class="font-h2 text-[20px] text-on-surface mb-xs">No Meta-Data</h6>
+<p class="text-on-surface-variant text-body-md">We don't track who you message or when you send it. Absolute anonymity.</p>
+</div>
+<!-- Trust Card 2 -->
+<div class="p-lg rounded-2xl border border-outline-variant/10 hover:border-primary/30 transition-all group">
+<div class="mb-md text-on-surface-variant group-hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[32px]" data-icon="code">code</span>
+</div>
+<h6 class="font-h2 text-[20px] text-on-surface mb-xs">Open Source</h6>
+<p class="text-on-surface-variant text-body-md">Our encryption logic is transparent and audited by independent experts.</p>
+</div>
+<!-- Trust Card 3 -->
+<div class="p-lg rounded-2xl border border-outline-variant/10 hover:border-primary/30 transition-all group">
+<div class="mb-md text-on-surface-variant group-hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[32px]" data-icon="database_off">database_off</span>
+</div>
+<h6 class="font-h2 text-[20px] text-on-surface mb-xs">No Persistence</h6>
+<p class="text-on-surface-variant text-body-md">Data is held in RAM only and purged immediately after its expiration.</p>
+</div>
+<!-- Trust Card 4 -->
+<div class="p-lg rounded-2xl border border-outline-variant/10 hover:border-primary/30 transition-all group">
+<div class="mb-md text-on-surface-variant group-hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[32px]" data-icon="verified">verified</span>
+</div>
+<h6 class="font-h2 text-[20px] text-on-surface mb-xs">Quantum Ready</h6>
+<p class="text-on-surface-variant text-body-md">Utilizing post-quantum cryptographic standards for future-proof safety.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- CTA Section -->
+<section class="px-md py-xxl max-w-5xl mx-auto text-center">
+<div class="glass-panel p-xl rounded-[40px] relative overflow-hidden">
+<div class="absolute -top-24 -left-24 w-64 h-64 bg-primary/20 blur-[80px] rounded-full"></div>
+<div class="absolute -bottom-24 -right-24 w-64 h-64 bg-tertiary/20 blur-[80px] rounded-full"></div>
+<h2 class="font-display text-display text-on-surface mb-md">Ready to secure your comms?</h2>
+<p class="text-on-surface-variant font-body-lg mb-xl max-w-xl mx-auto">Join thousands of security-conscious professionals protecting their data with aesmsg.</p>
+<div class="flex flex-col sm:flex-row justify-center gap-md relative z-10">
+<button class="btn-primary-gradient text-on-primary font-bold px-xl py-md rounded-xl text-body-md shadow-xl">Create My First Link</button>
+<button class="bg-surface-container-high text-on-surface font-medium px-xl py-md rounded-xl border border-outline-variant/30">View Enterprise Plan</button>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="border-t border-outline-variant/10 py-xl mt-xxl">
+<div class="max-w-7xl mx-auto px-lg flex flex-col md:flex-row justify-between items-center">
+<div class="mb-xl md:mb-0">
+<div class="font-display text-h2 font-bold text-on-surface mb-xs">aesmsg</div>
+<div class="text-on-surface-variant text-label-sm">Institutional Trust. Precision Privacy.</div>
+</div>
+<div class="flex space-x-xl">
+<div class="flex flex-col space-y-xs">
+<span class="text-on-surface font-bold text-label-sm mb-sm uppercase tracking-widest">Product</span>
+<a class="text-on-surface-variant hover:text-primary text-body-md" href="#">Dashboard</a>
+<a class="text-on-surface-variant hover:text-primary text-body-md" href="#">Browser Ext</a>
+<a class="text-on-surface-variant hover:text-primary text-body-md" href="#">API</a>
+</div>
+<div class="flex flex-col space-y-xs">
+<span class="text-on-surface font-bold text-label-sm mb-sm uppercase tracking-widest">Company</span>
+<a class="text-on-surface-variant hover:text-primary text-body-md" href="#">Privacy</a>
+<a class="text-on-surface-variant hover:text-primary text-body-md" href="#">Security</a>
+<a class="text-on-surface-variant hover:text-primary text-body-md" href="#">Contact</a>
+</div>
+</div>
+</div>
+<div class="max-w-7xl mx-auto px-lg mt-xl pt-lg border-t border-outline-variant/5 text-center md:text-left">
+<p class="text-on-surface-variant text-label-sm">© 2024 aesmsg. Built with end-to-end integrity.</p>
+</div>
+</footer>
+<!-- Bottom Nav for Mobile -->
+<nav class="md:hidden fixed bottom-0 w-full z-50 bg-surface/90 backdrop-blur-2xl border-t border-outline-variant/20 rounded-t-xl shadow-lg">
+<div class="flex justify-around items-center h-xxl pb-safe px-md">
+<div class="flex flex-col items-center justify-center text-primary">
+<span class="material-symbols-outlined" data-icon="lock" style="font-variation-settings: 'FILL' 1;">lock</span>
+<span class="font-label-sm">Encrypt</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="link">link</span>
+<span class="font-label-sm">Links</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-label-sm">Contacts</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-sm">Settings</span>
+</div>
+</div>
+</nav>
+</body></html>

@@ -1,0 +1,1 @@
+Mobile-stack decision **resolved** (React Native / Expo) — see [`docs/superpowers/specs/2026-05-29-mobile-app-foundation-design.md`](../../docs/superpowers/specs/2026-05-29-mobile-app-foundation-design.md).

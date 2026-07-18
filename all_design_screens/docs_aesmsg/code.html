@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>aesmsg — Documentation</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+<script>
+tailwind.config = {
+darkMode: "class",
+theme: {
+extend: {
+colors: {
+"surface": "#141218",
+"surface-container-lowest": "#0f0d13",
+"surface-container-low": "#1c1a20",
+"surface-container": "#1f1d24",
+"surface-container-high": "#2a2730",
+"surface-container-highest": "#35323b",
+"on-surface": "#e6e1e9",
+"on-surface-variant": "#cac4d0",
+"outline": "#49454f",
+"outline-variant": "#322f37",
+"primary": "#cfbcff",
+"on-primary": "#371e73",
+"primary-container": "#4f378b",
+"on-primary-container": "#e9ddff",
+"success": "#7ee2b8",
+"warning": "#ffd9a0",
+"error": "#ffb4ab",
+},
+fontFamily: {
+sans: ["Inter", "sans-serif"],
+display: ["Geist", "sans-serif"],
+mono: ["JetBrains Mono", "monospace"],
+},
+borderRadius: { "xl": "16px", "2xl": "20px", "3xl": "28px" },
+},
+},
+};
+</script>
+<style>
+body { background-color: #141218; }
+.material-symbols-outlined { font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24; }
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: #141218; }
+::-webkit-scrollbar-thumb { background: #35323b; border-radius: 5px; }
+.doc-scroll { scroll-behavior: smooth; }
+.prose-doc h2 { scroll-margin-top: 96px; }
+.prose-doc h3 { scroll-margin-top: 96px; }
+.sidebar-link.active { color: #cfbcff; background-color: rgba(207,188,255,0.08); border-left-color: #cfbcff; }
+.sidebar-link { border-left-color: transparent; }
+</style>
+</head>
+<body class="font-sans text-on-surface antialiased">
+
+<!-- ===== TOP NAV ===== -->
+<header class="fixed top-0 inset-x-0 z-50 h-16 border-b border-outline-variant bg-surface/80 backdrop-blur-xl">
+<div class="mx-auto max-w-[1400px] h-full px-4 sm:px-6 flex items-center justify-between gap-4">
+<div class="flex items-center gap-3 min-w-0">
+<div class="flex items-center gap-2.5 shrink-0">
+<div class="grid place-items-center size-9 rounded-xl bg-primary-container">
+<span class="material-symbols-outlined text-on-primary-container" style="font-size:20px">lock</span>
+</div>
+<div class="leading-tight">
+<div class="font-display font-semibold text-[15px] tracking-tight">aesmsg</div>
+<div class="text-[11px] text-on-surface-variant -mt-0.5">Documentation</div>
+</div>
+</div>
+<div class="hidden md:flex items-center gap-1 ml-4 text-[13px] text-on-surface-variant">
+<span class="material-symbols-outlined" style="font-size:16px">chevron_right</span>
+<span>Guides</span>
+<span class="material-symbols-outlined" style="font-size:16px">chevron_right</span>
+<span class="text-on-surface">Getting Started</span>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<div class="hidden sm:flex items-center gap-2 h-9 px-3 rounded-xl bg-surface-container border border-outline-variant text-on-surface-variant text-[13px] w-64">
+<span class="material-symbols-outlined" style="font-size:18px">search</span>
+<span class="flex-1">Search docs...</span>
+<kbd class="text-[11px] px-1.5 py-0.5 rounded bg-surface-container-highest border border-outline-variant">⌘K</kbd>
+</div>
+<button class="grid place-items-center size-9 rounded-xl bg-surface-container border border-outline-variant hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined" style="font-size:18px">dark_mode</span>
+</button>
+<a href="#" class="hidden sm:grid place-items-center h-9 px-4 rounded-xl bg-primary text-on-primary text-[13px] font-semibold hover:opacity-90 transition-opacity">Open App</a>
+</div>
+</div>
+</header>
+
+<div class="mx-auto max-w-[1400px] px-4 sm:px-6 pt-16">
+<div class="flex gap-8">
+
+<!-- ===== LEFT SIDEBAR ===== -->
+<aside class="hidden lg:block w-64 shrink-0">
+<nav class="sticky top-16 max-h-[calc(100vh-4rem)] overflow-y-auto py-8 pr-4">
+<div class="mb-6">
+<div class="px-3 mb-2 text-[11px] font-semibold uppercase tracking-wider text-on-surface-variant">Getting Started</div>
+<div class="space-y-0.5">
+<a href="#introduction" class="sidebar-link active flex items-center gap-2.5 px-3 py-2 rounded-lg border-l-2 text-[13px] font-medium hover:bg-surface-container transition-colors">Introduction</a>
+<a href="#how-it-works" class="sidebar-link flex items-center gap-2.5 px-3 py-2 rounded-lg border-l-2 text-[13px] text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors">How it Works</a>
+<a href="#quickstart" class="sidebar-link flex items-center gap-2.5 px-3 py-2 rounded-lg border-l-2 text-[13px] text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors">Quickstart</a>
+</div>
+</div>
+<div class="mb-6">
+<div class="px-3 mb-2 text-[11px] font-semibold uppercase tracking-wider text-on-surface-variant">Core Concepts</div>
+<div class="space-y-0.5">
+<a href="#encryption" class="sidebar-link flex items-center gap-2.5 px-3 py-2 rounded-lg border-l-2 text-[13px] text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors">Encryption Model</a>
+<a href="#keys" class="sidebar-link flex items-center gap-2.5 px-3 py-2 rounded-lg border-l-2 text-[13px] text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors">Keys &amp; Identity</a>
+<a href="#links" class="sidebar-link flex items-center gap-2.5 px-3 py-2 rounded-lg border-l-2 text-[13px] text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors">Secure Links</a>
+<a href="#expiry" class="sidebar-link flex items-center gap-2.5 px-3 py-2 rounded-lg border-l-2 text-[13px] text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors">Expiry &amp; Revocation</a>
+</div>
+</div>
+<div class="mb-6">
+<div class="px-3 mb-2 text-[11px] font-semibold uppercase tracking-wider text-on-surface-variant">Security</div>
+<div class="space-y-0.5">
+<a href="#threat-model" class="sidebar-link flex items-center gap-2.5 px-3 py-2 rounded-lg border-l-2 text-[13px] text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors">Threat Model</a>
+<a href="#zero-knowledge" class="sidebar-link flex items-center gap-2.5 px-3 py-2 rounded-lg border-l-2 text-[13px] text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors">Zero-Knowledge</a>
+</div>
+</div>
+</nav>
+</aside>
+
+<!-- ===== MAIN CONTENT ===== -->
+<main class="min-w-0 flex-1 py-8 lg:px-4 max-w-3xl">
+<div class="prose-doc">
+<!-- Breadcrumb / meta -->
+<div class="flex items-center gap-2 text-[12px] text-on-surface-variant mb-4">
+<span class="px-2 py-1 rounded-md bg-primary-container/40 text-on-primary-container font-medium">Guides</span>
+<span>Updated May 2026</span>
+<span>·</span>
+<span>5 min read</span>
+</div>
+
+<h1 class="font-display text-4xl font-bold tracking-tight mb-4">Introduction to aesmsg</h1>
+<p class="text-lg text-on-surface-variant leading-relaxed mb-8">aesmsg is a privacy-first encryption layer over the communication channels you already use. Encrypt sensitive content locally, share an opaque link through any app, and only the intended recipient can ever open it.</p>
+
+<!-- Callout -->
+<div class="flex gap-3 p-4 rounded-2xl bg-surface-container border border-outline-variant mb-8">
+<span class="material-symbols-outlined text-primary shrink-0" style="font-size:20px">info</span>
+<div class="text-[14px] text-on-surface-variant leading-relaxed">
+<span class="text-on-surface font-medium">aesmsg is not a messenger.</span> It's a zero-knowledge transmission utility. We never see your plaintext, your keys, or your attachments — only opaque ciphertext lives on our servers.
+</div>
+</div>
+
+<h2 id="introduction" class="font-display text-2xl font-semibold tracking-tight mt-12 mb-4 scroll-mt-24">What is aesmsg?</h2>
+<p class="text-[15px] text-on-surface-variant leading-relaxed mb-4">The channels people use to send credentials, files, and confidential notes — Slack, WhatsApp, email — were never designed to keep that content private from the channel itself. aesmsg sits one layer above: it encrypts before you send, so the channel only ever transports an opaque link to ciphertext.</p>
+
+<div class="grid sm:grid-cols-3 gap-3 my-8">
+<div class="p-4 rounded-2xl bg-surface-container border border-outline-variant">
+<span class="material-symbols-outlined text-primary mb-2" style="font-size:24px">lock</span>
+<div class="font-display font-semibold text-[14px] mb-1">Encrypt locally</div>
+<div class="text-[12px] text-on-surface-variant leading-relaxed">AES-256-GCM sealing on your device, before anything is uploaded.</div>
+</div>
+<div class="p-4 rounded-2xl bg-surface-container border border-outline-variant">
+<span class="material-symbols-outlined text-primary mb-2" style="font-size:24px">share</span>
+<div class="font-display font-semibold text-[14px] mb-1">Share anywhere</div>
+<div class="text-[12px] text-on-surface-variant leading-relaxed">Paste the link into Slack, WhatsApp, email, SMS — any channel.</div>
+</div>
+<div class="p-4 rounded-2xl bg-surface-container border border-outline-variant">
+<span class="material-symbols-outlined text-primary mb-2" style="font-size:24px">key</span>
+<div class="font-display font-semibold text-[14px] mb-1">Only they open it</div>
+<div class="text-[12px] text-on-surface-variant leading-relaxed">Decryption needs the recipient's private key, which never leaves their device.</div>
+</div>
+</div>
+
+<h2 id="how-it-works" class="font-display text-2xl font-semibold tracking-tight mt-12 mb-4 scroll-mt-24">How it Works</h2>
+<p class="text-[15px] text-on-surface-variant leading-relaxed mb-4">Every message follows the same six-step path from your device to your recipient's — and at no point does plaintext touch our servers.</p>
+
+<div class="space-y-3 my-6">
+<div class="flex gap-4 p-4 rounded-2xl bg-surface-container border border-outline-variant">
+<div class="grid place-items-center size-7 rounded-full bg-primary-container text-on-primary-container font-semibold text-[13px] shrink-0">1</div>
+<div class="text-[14px] text-on-surface-variant leading-relaxed"><span class="text-on-surface font-medium">Compose & attach.</span> Write your message or attach a file in the aesmsg client.</div>
+</div>
+<div class="flex gap-4 p-4 rounded-2xl bg-surface-container border border-outline-variant">
+<div class="grid place-items-center size-7 rounded-full bg-primary-container text-on-primary-container font-semibold text-[13px] shrink-0">2</div>
+<div class="text-[14px] text-on-surface-variant leading-relaxed"><span class="text-on-surface font-medium">Encrypt locally.</span> The client seals the payload to the recipient's public key with AES-256-GCM.</div>
+</div>
+<div class="flex gap-4 p-4 rounded-2xl bg-surface-container border border-outline-variant">
+<div class="grid place-items-center size-7 rounded-full bg-primary-container text-on-primary-container font-semibold text-[13px] shrink-0">3</div>
+<div class="text-[14px] text-on-surface-variant leading-relaxed"><span class="text-on-surface font-medium">Upload ciphertext.</span> Only the encrypted blob and minimal metadata are uploaded. Plaintext never leaves your device.</div>
+</div>
+<div class="flex gap-4 p-4 rounded-2xl bg-surface-container border border-outline-variant">
+<div class="grid place-items-center size-7 rounded-full bg-primary-container text-on-primary-container font-semibold text-[13px] shrink-0">4</div>
+<div class="text-[14px] text-on-surface-variant leading-relaxed"><span class="text-on-surface font-medium">Get a secure link.</span> The backend returns an opaque pointer to the ciphertext — not the secret itself.</div>
+</div>
+<div class="flex gap-4 p-4 rounded-2xl bg-surface-container border border-outline-variant">
+<div class="grid place-items-center size-7 rounded-full bg-primary-container text-on-primary-container font-semibold text-[13px] shrink-0">5</div>
+<div class="text-[14px] text-on-surface-variant leading-relaxed"><span class="text-on-surface font-medium">Share the link.</span> Paste it into whatever app you already use to reach your recipient.</div>
+</div>
+<div class="flex gap-4 p-4 rounded-2xl bg-surface-container border border-outline-variant">
+<div class="grid place-items-center size-7 rounded-full bg-primary-container text-on-primary-container font-semibold text-[13px] shrink-0">6</div>
+<div class="text-[14px] text-on-surface-variant leading-relaxed"><span class="text-on-surface font-medium">Recipient decrypts.</span> They open the link, download the ciphertext, and decrypt locally after biometric unlock.</div>
+</div>
+</div>
+
+<h2 id="quickstart" class="font-display text-2xl font-semibold tracking-tight mt-12 mb-4 scroll-mt-24">Quickstart</h2>
+<p class="text-[15px] text-on-surface-variant leading-relaxed mb-4">Send your first encrypted message in under a minute.</p>
+
+<div class="rounded-2xl bg-surface-container-lowest border border-outline-variant overflow-hidden my-6">
+<div class="flex items-center gap-2 px-4 h-10 border-b border-outline-variant bg-surface-container">
+<span class="size-3 rounded-full bg-error/60"></span>
+<span class="size-3 rounded-full bg-warning/60"></span>
+<span class="size-3 rounded-full bg-success/60"></span>
+<span class="ml-2 text-[12px] text-on-surface-variant font-mono">terminal</span>
+</div>
+<div class="p-4 font-mono text-[13px] leading-relaxed">
+<div class="text-on-surface-variant"># Install the CLI</div>
+<div class="text-on-surface">$ npm install -g <span class="text-primary">@aesmsg/cli</span></div>
+<div class="text-on-surface-variant mt-3"># Encrypt and get a link</div>
+<div class="text-on-surface">$ aesmsg send <span class="text-success">"my secret"</span> --to <span class="text-warning">alice.pub</span></div>
+<div class="text-on-surface-variant mt-1">→ https://aesmsg.app/l/x7Kp9...</div>
+</div>
+</div>
+
+<h2 id="encryption" class="font-display text-2xl font-semibold tracking-tight mt-12 mb-4 scroll-mt-24">Encryption Model</h2>
+<p class="text-[15px] text-on-surface-variant leading-relaxed mb-4">aesmsg uses HPKE (RFC 9180) — DHKEM(X25519, HKDF-SHA256) for key encapsulation, AES-256-GCM for the payload, and HKDF-SHA256 as the KDF. Every message gets a fresh symmetric key.</p>
+
+<div class="overflow-hidden rounded-2xl border border-outline-variant my-6">
+<table class="w-full text-[13px]">
+<thead>
+<tr class="bg-surface-container border-b border-outline-variant text-left">
+<th class="px-4 py-3 font-display font-semibold">Layer</th>
+<th class="px-4 py-3 font-display font-semibold">Primitive</th>
+</tr>
+</thead>
+<tbody class="text-on-surface-variant">
+<tr class="border-b border-outline-variant">
+<td class="px-4 py-3">Key encapsulation</td>
+<td class="px-4 py-3 font-mono text-primary">DHKEM(X25519, HKDF-SHA256)</td>
+</tr>
+<tr class="border-b border-outline-variant">
+<td class="px-4 py-3">Payload encryption</td>
+<td class="px-4 py-3 font-mono text-primary">AES-256-GCM</td>
+</tr>
+<tr>
+<td class="px-4 py-3">Key derivation</td>
+<td class="px-4 py-3 font-mono text-primary">HKDF-SHA256</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<h2 id="keys" class="font-display text-2xl font-semibold tracking-tight mt-12 mb-4 scroll-mt-24">Keys & Identity</h2>
+<p class="text-[15px] text-on-surface-variant leading-relaxed mb-4">Every user has a PKI keypair generated on-device. Your private key never leaves your device unless you explicitly export an encrypted backup. Trust between users is established by manual fingerprint verification or QR scan.</p>
+
+<div class="flex gap-3 p-4 rounded-2xl bg-surface-container border border-outline-variant my-6">
+<span class="material-symbols-outlined text-success shrink-0" style="font-size:20px">verified_user</span>
+<div class="text-[14px] text-on-surface-variant leading-relaxed">
+<span class="text-on-surface font-medium">Fingerprint example.</span> Compare this out-of-band with your contact:
+<div class="font-mono text-primary mt-2 text-[13px]">AM-7f3a 9c2e 4b8d 1a6f</div>
+</div>
+</div>
+
+<h2 id="links" class="font-display text-2xl font-semibold tracking-tight mt-12 mb-4 scroll-mt-24">Secure Links</h2>
+<p class="text-[15px] text-on-surface-variant leading-relaxed mb-4">A secure link is a pointer, not a secret. Without the recipient's private key it is useless. Public link previews are safe — messaging apps that auto-fetch the URL never consume an open or expose ciphertext.</p>
+
+<h2 id="expiry" class="font-display text-2xl font-semibold tracking-tight mt-12 mb-4 scroll-mt-24">Expiry & Revocation</h2>
+<p class="text-[15px] text-on-surface-variant leading-relaxed mb-4">Links can self-destruct after a set time (10m, 1h, 24h, 7d, or custom), cap the number of opens (1, 3, or unlimited until expiry), and be manually revoked at any time. Revocation purges the ciphertext from the server immediately.</p>
+
+<h2 id="threat-model" class="font-display text-2xl font-semibold tracking-tight mt-12 mb-4 scroll-mt-24">Threat Model</h2>
+<p class="text-[15px] text-on-surface-variant leading-relaxed mb-4">aesmsg protects the confidentiality and integrity of your message contents against the server, the transport channel, and anyone with later access to the conversation. It does not hide that communication occurred, nor protect a device already compromised at the OS level.</p>
+
+<h2 id="zero-knowledge" class="font-display text-2xl font-semibold tracking-tight mt-12 mb-4 scroll-mt-24">Zero-Knowledge</h2>
+<p class="text-[15px] text-on-surface-variant leading-relaxed mb-4">The server stores only: message ID, ciphertext, creation time, expiry, max opens, and status. It never stores plaintext, private keys, message previews, or unencrypted attachments. This is the core guarantee — everything else follows from it.</p>
+
+<!-- Pager -->
+<div class="grid sm:grid-cols-2 gap-3 mt-12 pt-8 border-t border-outline-variant">
+<a href="#" class="group flex flex-col gap-1 p-4 rounded-2xl bg-surface-container border border-outline-variant hover:border-outline transition-colors">
+<span class="text-[12px] text-on-surface-variant">Previous</span>
+<span class="font-display font-semibold text-[14px] flex items-center gap-1">Overview</span>
+</a>
+<a href="#" class="group flex flex-col gap-1 p-4 rounded-2xl bg-surface-container border border-outline-variant hover:border-outline transition-colors text-right">
+<span class="text-[12px] text-on-surface-variant">Next</span>
+<span class="font-display font-semibold text-[14px] flex items-center justify-end gap-1">How it Works</span>
+</a>
+</div>
+</main>
+
+<!-- ===== RIGHT TOC ===== -->
+<aside class="hidden xl:block w-56 shrink-0">
+<div class="sticky top-16 py-8 pl-4">
+<div class="text-[11px] font-semibold uppercase tracking-wider text-on-surface-variant mb-3">On this page</div>
+<nav class="space-y-2 text-[13px]">
+<a href="#introduction" class="block text-primary">What is aesmsg?</a>
+<a href="#how-it-works" class="block text-on-surface-variant hover:text-on-surface transition-colors">How it Works</a>
+<a href="#quickstart" class="block text-on-surface-variant hover:text-on-surface transition-colors">Quickstart</a>
+<a href="#encryption" class="block text-on-surface-variant hover:text-on-surface transition-colors">Encryption Model</a>
+<a href="#keys" class="block text-on-surface-variant hover:text-on-surface transition-colors">Keys & Identity</a>
+<a href="#links" class="block text-on-surface-variant hover:text-on-surface transition-colors">Secure Links</a>
+<a href="#expiry" class="block text-on-surface-variant hover:text-on-surface transition-colors">Expiry & Revocation</a>
+<a href="#threat-model" class="block text-on-surface-variant hover:text-on-surface transition-colors">Threat Model</a>
+<a href="#zero-knowledge" class="block text-on-surface-variant hover:text-on-surface transition-colors">Zero-Knowledge</a>
+</nav>
+</div>
+</aside>
+
+</div>
+</div>
+
+</body>
+</html>
