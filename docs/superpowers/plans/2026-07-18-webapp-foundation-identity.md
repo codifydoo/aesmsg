@@ -690,3 +690,15 @@ Per spec §8/§9/§12 — these belong to later sub-projects or are deferred:
 - **`docs/deploy.md` fourth service** (Sproobo static, docs only, no Vercel) — Task 11.
 - **Repo-root green gate** — Task 12: `pnpm typecheck && pnpm lint && pnpm test`.
 - **Copy compliance** — enforced throughout; swept in Task 12 Step 5.
+
+---
+
+## Deviation — CSP hardened to hash-pinned `script-src` (supersedes D3)
+
+**What changed (D3, Tasks 1–3, 11):** The plan's D3 accepted `script-src 'self' 'unsafe-inline'` as a documented tradeoff and put a single static CSP `<meta>` in `app/layout.tsx`. Per the spec §3 mandate of *no inline script*, the implementation instead delivers a **hash-pinned** policy via a post-build step and removes the layout `<meta>`:
+
+- `apps/webapp/scripts/inject-csp.mjs` runs after `next build` (wired into the `build` script). For every `out/**/*.html` it sha256-hashes each inline `<script>` body and injects a per-page `<meta http-equiv="Content-Security-Policy">` as the first `<head>` child. Because it hashes the *final emitted bytes* per page, D3's "a page cannot carry the hash of its own inline script" circularity does not apply.
+- Production `script-src` = `'self' 'wasm-unsafe-eval'` + per-page `'sha256-…'` hashes, **no `'unsafe-inline'`**. `default-src` tightened to `'none'`; `base-uri`/`form-action` set to `'none'`; `connect-src` keeps the API origin. `'wasm-unsafe-eval'` is retained for `@aesmsg/crypto`'s WebAssembly Argon2id even though no identity code lands in this task.
+- `style-src` keeps a **bounded** `'unsafe-inline'` — verified empirically: the export emits 17 inline `style` **attributes** (from `@aesmsg/ui`'s `MaterialIcon` / `Logo`) and **zero** inline `<style>` elements; attributes cannot be hash-covered without `'unsafe-hashes'`. This is style-only and never applies to scripts.
+- **Verification (Task 3):** built `out/`, then served it and loaded all 7 routes in headless Chromium under the combined policy (meta + `frame-ancestors 'none'` header). Every page hydrated (proof the hashed inline scripts executed) with **zero** CSP violations and zero page errors.
+- **Deploy header (Task 11):** the authoritative host CSP header carries **only `frame-ancestors 'none'`** (plus `Referrer-Policy`/`X-Content-Type-Options`/`X-Frame-Options`). It intentionally does **not** repeat `default-src 'none'`/the resource directives, because multiple CSPs combine via **AND** — a header with `default-src 'none'` but without each page's per-script hashes would block the meta's hydration scripts. The `<meta>` is the single source of truth for resource directives. (This is a small, deliberate refinement of the override's "header carries everything except `script-src`" wording, forced by the multiple-policy AND semantics; documented with browser evidence above.)

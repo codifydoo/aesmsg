@@ -2,17 +2,18 @@
 
 aesmsg deploys via [Sproobo](https://sproobo.com). Sproobo handles containerization, nginx, TLS, and provisions the Postgres and Redis services the backend depends on. **Never deploy to Vercel.**
 
-## The three deployables
+## The four deployables
 
-The product ships as three independent services. Only the first two are a backend; the web app is a static marketing/bouncer site with no backend of its own.
+The product ships as four independent services. Only the first two are a backend; the two web surfaces are static sites with no backend of their own.
 
 | Deployable | What it is | Depends on |
 |---|---|---|
-| **`apps/api`** | Standalone **Fastify** service hosting the message API (`/api/messages/*`) over `@aesmsg/server-store`. The **native apps** are its only clients. | Postgres, Redis |
+| **`apps/api`** | Standalone **Fastify** service hosting the message API (`/api/messages/*`) over `@aesmsg/server-store`. The **native apps** and the `apps/webapp` client are its clients. | Postgres, Redis |
 | **`apps/worker`** | Headless sweeper. Periodically runs `expirePastDue()` to physically purge expired/revoked ciphertext from Postgres. No network ports. | Postgres |
 | **`apps/web`** | Static **Next.js 16** site: marketing landing at `/`, deep-link bouncer at `/l/[id]`, plus `/docs`, `/privacy`, `/terms`. **No crypto, no database, no API routes.** | nothing (serves static output) |
+| **`apps/webapp`** | Static **Next.js 16** messaging web client (`output: 'export'`) served at `https://app.aesmsg.com`. Full sender/recipient/identity flows run **client-side**; all crypto is `@aesmsg/crypto`. | nothing (serves static output; talks only to `api.aesmsg.com` from the browser) |
 
-All cryptography, identity, and key handling live in the **native apps** and `@aesmsg/crypto`. Neither the API nor the web app ever sees plaintext or a private key — the server stores only ciphertext + minimal metadata (link id, expiry, max-opens, opens count, status).
+Cryptography, identity, and key handling run **client-side** — in the native apps and, now, the `apps/webapp` web client — all via `@aesmsg/crypto`. The **server** (`apps/api` / `apps/worker`) and the marketing site (`apps/web`) never see plaintext or a private key — the server stores only ciphertext + minimal metadata (link id, expiry, max-opens, opens count, status).
 
 ---
 
@@ -83,6 +84,49 @@ To serve Universal Links / App Links, the web host must also serve
 
 ---
 
+## `apps/webapp` — static messaging web client (app.aesmsg.com)
+
+The messaging **web client**, served at `https://app.aesmsg.com`. Unlike `apps/web`, it carries the real sender/recipient/identity flows — but it is still a **fully static export** (`output: 'export'`): no API routes, no server runtime, no SSR touching key material. All crypto runs **client-side** via `@aesmsg/crypto`; the private key is wrapped-at-rest in IndexedDB and unwrapped in memory only.
+
+### Build & serve
+
+```bash
+pnpm --filter @aesmsg/webapp build   # -> apps/webapp/out/ (static files, no Node runtime)
+```
+
+`build` runs `next build` then `node scripts/inject-csp.mjs` (the CSP baker, below). Serve `apps/webapp/out/` as static files on Sproobo static hosting — there is **no** Node process to run and **no** env, database, Redis, or salt for `apps/webapp` itself.
+
+`NEXT_PUBLIC_AESMSG_API_ORIGIN` is a **build-time** variable (default `https://api.aesmsg.com`). Set it before `build` only if the API origin differs; it is baked into the CSP `connect-src` at build time.
+
+### Content-Security-Policy (per-page meta + authoritative header)
+
+The policy is delivered two ways, both first-party and server-free:
+
+1. **Per-page `<meta http-equiv="Content-Security-Policy">`**, baked into every `out/**/*.html` by `scripts/inject-csp.mjs`. This is the **authoritative source for the resource directives**, and in particular for `script-src`. A static export has no server runtime (so `next.config` `headers()` is inert) and no nonce pipeline, so the baker sha256-hashes each page's own inline hydration / RSC-flight scripts and pins them. `script-src` therefore stays strict — `'self' 'wasm-unsafe-eval'` + per-page hashes, **no `'unsafe-inline'`** (`'wasm-unsafe-eval'` is required for `@aesmsg/crypto`'s WebAssembly Argon2id; there is **no `'unsafe-eval'`** in the production policy). The full meta policy per page is:
+
+   ```
+   default-src 'none'; script-src 'self' 'wasm-unsafe-eval' 'sha256-…(per page)…'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://api.aesmsg.com; base-uri 'none'; form-action 'none'
+   ```
+
+   `style-src` keeps a bounded `'unsafe-inline'` for inline `style` **attributes** (emitted by `@aesmsg/ui`'s `MaterialIcon` / `Logo` and by Next's font CSS), which CSP hashes cannot cover without `'unsafe-hashes'`; this is a style-only relaxation and never applies to scripts. There are **no third-party or remote origins** anywhere beyond `connect-src` → `https://api.aesmsg.com` (fonts are self-hosted under `/_next` + `/fonts`, so nothing is fetched from Google at runtime). No analytics.
+
+2. **The authoritative host (nginx / Sproobo) response headers**, sent on every response:
+
+   ```
+   Content-Security-Policy: frame-ancestors 'none'
+   Referrer-Policy: no-referrer
+   X-Content-Type-Options: nosniff
+   X-Frame-Options: DENY
+   ```
+
+   The header CSP carries **only `frame-ancestors 'none'`** — the one directive `<meta>` cannot express (clickjacking / iframe-embedding defense, mirroring `X-Frame-Options: DENY`). It deliberately does **not** repeat `default-src 'none'` or the resource directives: browsers enforce multiple CSPs as an **AND**, so a header carrying `default-src 'none'` without each page's per-script hashes would block the very hydration scripts the meta permits and break the app. The `<meta>` is thus the single source of truth for the resource directives; the header supplies `frame-ancestors` plus the classic hardening headers.
+
+### Backend coupling
+
+The only backend dependency is the CORS allowlist on `apps/api`: `AESMSG_WEBAPP_ORIGIN=https://app.aesmsg.com` (single-origin allowlist; every other origin stays denied). That change **lands in SP2** (sender flow), not in this foundation sub-project — noted here so this section is complete. The foundation sub-project issues **zero** network requests (keygen + wrap + unlock are all local), so nothing else is required to serve it.
+
+---
+
 ## Database migrations (before starting the API/worker)
 
 The `@aesmsg/server-store` package owns the schema. Apply pending SQL files once per deploy, before the API and worker start:
@@ -104,6 +148,7 @@ DATABASE_URL=postgres://... pnpm migrate
 | Start the API | `pnpm --filter @aesmsg/api start` |
 | Start the worker | `pnpm --filter @aesmsg/worker start` |
 | Build + start the static web | `pnpm --filter web build && pnpm --filter web start` |
+| Build the static web client (`app.aesmsg.com`) | `pnpm --filter @aesmsg/webapp build`, then serve `apps/webapp/out/` as static files |
 
 ---
 

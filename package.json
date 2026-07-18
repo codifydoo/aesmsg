@@ -11,6 +11,7 @@
   "scripts": {
     "build": "pnpm -r build",
     "dev": "pnpm --filter web dev",
+    "dev:webapp": "pnpm --filter @aesmsg/webapp dev",
     "start": "pnpm --filter web start",
     "dev:api": "pnpm --filter @aesmsg/api dev",
     "api:prod": "DATABASE_URL=postgres://aesmsg:aesmsg@localhost:55432/aesmsg pnpm migrate && NODE_ENV=production DATABASE_URL=postgres://aesmsg:aesmsg@localhost:55432/aesmsg REDIS_URL=redis://localhost:56379/0 AESMSG_PUBLIC_LINK_ORIGIN=https://aesmsg.com RATE_LIMIT_IP_SALT=dev-only-salt-change-me-0000000000 pnpm --filter @aesmsg/api start",

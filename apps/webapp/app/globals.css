@@ -1,0 +1,52 @@
+@import "tailwindcss";
+@import "@aesmsg/design-tokens/theme.css";
+
+@source "../../../packages/ui/src/**/*.{ts,tsx}";
+
+html,
+body {
+  background: var(--color-background);
+  color: var(--color-on-surface);
+  font-family: var(--font-sans);
+  min-height: 100dvh;
+}
+
+body {
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Self-hosted Material Symbols (subset). Vendored under public/fonts/ so the app
+   makes no runtime request to fonts.googleapis.com / fonts.gstatic.com (CSP
+   font-src 'self'). Icons render via ligatures; see fonts-src/README.md. */
+@font-face {
+  font-family: "Material Symbols Outlined";
+  font-style: normal;
+  font-weight: 100 700;
+  font-display: block;
+  src: url("/fonts/material-symbols-outlined.woff2") format("woff2");
+}
+
+.material-symbols-outlined {
+  /* biome-ignore lint/a11y/useGenericFontNames: icon font — a generic text fallback would render the raw ligature name */
+  font-family: "Material Symbols Outlined";
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  font-feature-settings: "liga";
+  -webkit-font-feature-settings: "liga";
+  -webkit-font-smoothing: antialiased;
+  font-variation-settings:
+    "FILL" 0,
+    "wght" 400,
+    "GRAD" 0,
+    "opsz" 24;
+}
