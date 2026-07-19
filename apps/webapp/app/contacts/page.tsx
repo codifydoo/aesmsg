@@ -1,14 +1,16 @@
 import { AppShell } from "@/src/app-shell/AppShell";
-import { Placeholder } from "@/src/app-shell/Placeholder";
+import { RequireUnlocked } from "@/src/components/RequireUnlocked";
+import { ContactsListScreen } from "@/src/screens/ContactsListScreen";
 
+// Contacts live behind the unlocked app (D10): consistent with every other AppShell surface, and the
+// compose picker that consumes them already requires unlock. Contacts hold no secrets and never reach
+// the server — they are local-only IndexedDB records.
 export default function ContactsPage() {
   return (
-    <AppShell>
-      <Placeholder
-        icon="group"
-        title="Contacts"
-        body="A verified contact directory with fingerprint verification lands in a later release. For the full flow today, use the aesmsg app."
-      />
-    </AppShell>
+    <RequireUnlocked>
+      <AppShell>
+        <ContactsListScreen />
+      </AppShell>
+    </RequireUnlocked>
   );
 }

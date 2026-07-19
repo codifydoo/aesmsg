@@ -1,6 +1,11 @@
 import { exportPublicKey, generateIdentity, wrapPrivateKey } from "@aesmsg/crypto";
 import { beforeEach, describe, expect, it } from "vitest";
-import { __deleteDbForTests, IDENTITY_STORE, SENT_LINKS_STORE } from "@/src/identity/db";
+import {
+  __deleteDbForTests,
+  CONTACTS_STORE,
+  IDENTITY_STORE,
+  SENT_LINKS_STORE,
+} from "@/src/identity/db";
 import {
   deleteIdentity,
   hasIdentity,
@@ -115,10 +120,11 @@ describe("identity-store", () => {
 
     // Sweep ALL storage — the only persisted identity state anywhere is the single record in the
     // identity IndexedDB store; Web Storage must be untouched. Since SP2 the DB also carries the
-    // (empty here) sent-links store, so the store set is exactly [identity, sent-links].
+    // (empty here) sent-links store, and since SP4 the (empty here) contacts store, so the store set
+    // is exactly [contacts, identity, sent-links].
     const sweep = await sweepStorage();
     expect(sweep.dbNames).toEqual([DB_NAME]);
-    expect(sweep.storeNames).toEqual([IDENTITY_STORE, SENT_LINKS_STORE].sort());
+    expect(sweep.storeNames).toEqual([IDENTITY_STORE, SENT_LINKS_STORE, CONTACTS_STORE].sort());
     expect(sweep.records).toHaveLength(1);
     expect(sweep.localStorageKeys).toEqual([]);
     expect(sweep.sessionStorageKeys).toEqual([]);

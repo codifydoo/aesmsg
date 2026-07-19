@@ -1,7 +1,12 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import { act } from "react";
 import { beforeEach, describe, expect, it } from "vitest";
-import { __deleteDbForTests, IDENTITY_STORE, SENT_LINKS_STORE } from "@/src/identity/db";
+import {
+  __deleteDbForTests,
+  CONTACTS_STORE,
+  IDENTITY_STORE,
+  SENT_LINKS_STORE,
+} from "@/src/identity/db";
 import {
   IdentityContext,
   type IdentityContextValue,
@@ -208,8 +213,9 @@ describe("IdentityProvider state machine", () => {
     // wrapped-envelope record exists anywhere.
     const sweep = await sweepStorage();
     expect(sweep.dbNames).toEqual([DB_NAME]); // the only database is our webapp store
-    // Since SP2 the DB also carries the (empty here) sent-links store alongside identity.
-    expect(sweep.storeNames).toEqual([IDENTITY_STORE, SENT_LINKS_STORE].sort());
+    // Since SP2 the DB also carries the (empty here) sent-links store, and since SP4 the (empty
+    // here) contacts store, alongside identity.
+    expect(sweep.storeNames).toEqual([IDENTITY_STORE, SENT_LINKS_STORE, CONTACTS_STORE].sort());
     expect(sweep.records).toHaveLength(1); // with exactly one identity record
     expect(sweep.localStorageKeys).toEqual([]); // and nothing leaked to Web Storage
     expect(sweep.sessionStorageKeys).toEqual([]);

@@ -1,10 +1,15 @@
 "use client";
 
-import type { Fingerprint } from "@aesmsg/crypto";
+import type { Fingerprint, PublicKeyString } from "@aesmsg/crypto";
 import { MaterialIcon } from "@aesmsg/ui";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { type ApiErrorKind, classifyApiError } from "@/src/api/client";
 import { PrimaryButton } from "@/src/components/PrimaryButton";
+import { TrustChip } from "@/src/components/TrustChip";
+import { contactInitials } from "@/src/contacts/contacts-display";
+import { type PickedRecipient, seedComposeRecipient } from "@/src/create/compose-contact";
+import { consumePendingRecipient } from "@/src/create/compose-handoff";
 import {
   DEFAULT_EXPIRY,
   DEFAULT_MAX_OPENS,
@@ -18,6 +23,7 @@ import {
 import { createAndSeal } from "@/src/create/create-and-seal";
 import { type RecipientValidation, validateRecipientKey } from "@/src/create/recipient";
 import { LinkCreatedScreen } from "@/src/screens/LinkCreatedScreen";
+import { RecipientPicker } from "@/src/screens/RecipientPicker";
 
 // Map an error bucket to calm, leak-free copy (never surfaces server internals).
 const ERROR_COPY: Record<ApiErrorKind, string> = {
@@ -64,8 +70,17 @@ function OptionButton({
 }
 
 export function ComposeScreen() {
+  const router = useRouter();
+  const [recipientMode, setRecipientMode] = useState<"paste" | "contact">("paste");
   const [recipientInput, setRecipientInput] = useState("");
   const [recipient, setRecipient] = useState<RecipientValidation | null>(null);
+  // A saved contact adopted as the recipient (contact mode). A "changed"-key contact is NEVER placed
+  // here directly — it is held behind `keyChanged` until the user explicitly verifies or acknowledges.
+  const [picked, setPicked] = useState<PickedRecipient | null>(null);
+  // The key-changed gate: a picked contact whose key changed, awaiting an explicit choice (D7/D8).
+  const [keyChanged, setKeyChanged] = useState<(PickedRecipient & { kind: "contact" }) | undefined>(
+    undefined,
+  );
   const [message, setMessage] = useState("");
   const [label, setLabel] = useState("");
   const [expiryChoice, setExpiryChoice] = useState<ExpiryChoice>(DEFAULT_EXPIRY);
@@ -74,6 +89,37 @@ export function ComposeScreen() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<ApiErrorKind | null>(null);
   const [created, setCreated] = useState<CreatedLink | null>(null);
+
+  // Seed from a "Send secure message" hand-off (e.g. off a contact's detail). One-shot: consumed on
+  // mount, then cleared. A changed-key contact is HELD behind the gate (seedComposeRecipient), never
+  // adopted silently — the MitM gate is never bypassed by the detail entry point.
+  useEffect(() => {
+    const pending = consumePendingRecipient();
+    if (pending) {
+      const seeded = seedComposeRecipient(pending);
+      setRecipientMode("contact");
+      setPicked(seeded.recipient);
+      setKeyChanged(seeded.keyChanged);
+    }
+  }, []);
+
+  function handlePick(candidate: PickedRecipient) {
+    const seeded = seedComposeRecipient(candidate);
+    setPicked(seeded.recipient);
+    setKeyChanged(seeded.keyChanged);
+  }
+
+  function selectRecipientMode(mode: "paste" | "contact") {
+    setRecipientMode(mode);
+    if (mode === "paste") {
+      // Entering the Paste tab is a clean-slate recipient source: drop any held contact and the
+      // contact-side key-changed gate. That gate renders (and can be cleared) only in contact mode,
+      // so leaving `keyChanged` set here would strand `canSubmit` forever with no visible control.
+      // A pasted key then becomes the authoritative recipient.
+      setKeyChanged(undefined);
+      setPicked(null);
+    }
+  }
 
   // Validate the pasted recipient key as it changes (crypto runs locally; a race guard drops stale
   // results). An empty field clears the validation without an error.
@@ -97,15 +143,32 @@ export function ComposeScreen() {
       ? validateCustomExpiry(new Date(customDate), new Date())
       : null;
   const expiryValid = expiryChoice !== "custom" || (customCheck?.ok ?? false);
-  const canSubmit = recipient?.ok === true && expiryValid && !submitting;
+
+  // The recipient the screen seals to — the SAME { publicKey, fingerprint } shape whether pasted or a
+  // saved contact, so createAndSeal is unchanged. A changed-key contact held behind the gate keeps
+  // this null (picked stays null), so it can never reach the seal without an explicit choice (D8).
+  const activeRecipient: { publicKey: PublicKeyString; fingerprint: Fingerprint } | null =
+    recipientMode === "paste"
+      ? recipient?.ok
+        ? { publicKey: recipient.publicKey, fingerprint: recipient.fingerprint }
+        : null
+      : picked
+        ? { publicKey: picked.publicKey, fingerprint: picked.fingerprint }
+        : null;
+
+  const canSubmit =
+    activeRecipient !== null && keyChanged === undefined && expiryValid && !submitting;
 
   const expiryLabel = EXPIRY_PRESETS.find((p) => p.value === expiryChoice)?.label ?? "";
   const maxOpensLabel = MAX_OPENS_OPTIONS.find((o) => o.value === maxOpens)?.label ?? "";
 
   function resetForm() {
     setCreated(null);
+    setRecipientMode("paste");
     setRecipientInput("");
     setRecipient(null);
+    setPicked(null);
+    setKeyChanged(undefined);
     setMessage("");
     setLabel("");
     setExpiryChoice(DEFAULT_EXPIRY);
@@ -116,7 +179,7 @@ export function ComposeScreen() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!recipient?.ok || submitting) return;
+    if (activeRecipient === null || keyChanged !== undefined || submitting) return;
     const now = new Date();
     const expiresAt =
       expiryChoice === "custom"
@@ -128,7 +191,7 @@ export function ComposeScreen() {
     setError(null);
     try {
       const out = await createAndSeal({
-        recipientPublicKeyString: recipient.publicKey,
+        recipientPublicKeyString: activeRecipient.publicKey,
         message,
         expiresAt,
         maxOpens,
@@ -181,44 +244,183 @@ export function ComposeScreen() {
         onSubmit={handleSubmit}
         className="space-y-6 rounded-xl border border-outline-variant bg-surface-container p-6"
       >
-        {/* Recipient */}
-        <div className="space-y-2">
-          <label
-            htmlFor="recipient-key"
-            className="block text-label-sm uppercase tracking-widest text-on-surface-variant"
-          >
-            Recipient public key
-          </label>
-          <textarea
-            id="recipient-key"
-            value={recipientInput}
-            onChange={(e) => setRecipientInput(e.target.value)}
-            placeholder="Paste the recipient's amk1: public key…"
-            rows={2}
-            spellCheck={false}
-            className={`w-full resize-none rounded-lg border bg-surface-container-lowest px-4 py-3 font-mono text-mono-code text-on-surface transition-colors placeholder:font-sans placeholder:text-on-surface-variant focus:outline-none ${
-              recipientInvalid
-                ? "border-error focus:border-error"
-                : "border-outline-variant focus:border-primary"
-            }`}
-          />
-          {recipient?.ok ? (
-            <div className="flex flex-col gap-1 rounded-lg border border-success/30 bg-success/10 p-3">
-              <span className="inline-flex items-center gap-1 text-label-sm text-success">
-                <MaterialIcon name="verified" size={16} filled />
-                Valid key
-              </span>
-              <span className="break-all font-mono text-mono-code text-on-surface">
-                {recipient.fingerprint}
-              </span>
+        {/* Recipient — pasted key OR a saved contact. Both feed the SAME {publicKey,fingerprint} into
+            createAndSeal (SP4 fills the SP2 seam). A changed-key contact routes through the gate below
+            instead of becoming the active recipient. */}
+        <div className="space-y-3">
+          <span className="block text-label-sm uppercase tracking-widest text-on-surface-variant">
+            Recipient
+          </span>
+          <div className="flex gap-2" role="tablist" aria-label="Choose recipient source">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={recipientMode === "paste"}
+              onClick={() => selectRecipientMode("paste")}
+              className={`flex flex-1 items-center justify-center gap-2 rounded-lg border px-4 py-2.5 text-label-sm uppercase tracking-widest transition-colors ${
+                recipientMode === "paste"
+                  ? "border-primary bg-primary-container/15 text-primary"
+                  : "border-outline-variant text-on-surface-variant hover:bg-surface-container-high"
+              }`}
+            >
+              <MaterialIcon name="content_paste" size={18} />
+              Paste key
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={recipientMode === "contact"}
+              onClick={() => selectRecipientMode("contact")}
+              className={`flex flex-1 items-center justify-center gap-2 rounded-lg border px-4 py-2.5 text-label-sm uppercase tracking-widest transition-colors ${
+                recipientMode === "contact"
+                  ? "border-primary bg-primary-container/15 text-primary"
+                  : "border-outline-variant text-on-surface-variant hover:bg-surface-container-high"
+              }`}
+            >
+              <MaterialIcon name="group" size={18} />
+              Saved contacts
+            </button>
+          </div>
+
+          {recipientMode === "paste" ? (
+            <div className="space-y-2">
+              <textarea
+                id="recipient-key"
+                aria-label="Recipient public key"
+                value={recipientInput}
+                onChange={(e) => setRecipientInput(e.target.value)}
+                placeholder="Paste the recipient's amk1: public key…"
+                rows={2}
+                spellCheck={false}
+                className={`w-full resize-none rounded-lg border bg-surface-container-lowest px-4 py-3 font-mono text-mono-code text-on-surface transition-colors placeholder:font-sans placeholder:text-on-surface-variant focus:outline-none ${
+                  recipientInvalid
+                    ? "border-error focus:border-error"
+                    : "border-outline-variant focus:border-primary"
+                }`}
+              />
+              {recipient?.ok ? (
+                <div className="flex flex-col gap-1 rounded-lg border border-success/30 bg-success/10 p-3">
+                  <span className="inline-flex items-center gap-1 text-label-sm text-success">
+                    <MaterialIcon name="verified" size={16} filled />
+                    Valid key
+                  </span>
+                  <span className="break-all font-mono text-mono-code text-on-surface">
+                    {recipient.fingerprint}
+                  </span>
+                </div>
+              ) : recipientInvalid ? (
+                <span className="block text-label-sm text-error">
+                  That doesn't look like an aesmsg public key. Paste the recipient's full{" "}
+                  <span className="font-mono">amk1:</span> key.
+                </span>
+              ) : null}
             </div>
-          ) : recipientInvalid ? (
-            <span className="block text-label-sm text-error">
-              That doesn't look like an aesmsg public key. Paste the recipient's full{" "}
-              <span className="font-mono">amk1:</span> key.
-            </span>
-          ) : null}
-          {/* SP4 seam: a saved-contact picker plugs in here, feeding the same {publicKey,fingerprint}. */}
+          ) : keyChanged ? (
+            <div
+              role="alertdialog"
+              aria-label="Contact key changed"
+              className="space-y-4 rounded-lg border border-warning/30 bg-warning/10 p-4"
+            >
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex min-w-0 items-center gap-2">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-surface-container-high text-label-sm font-semibold text-on-surface">
+                    {contactInitials(keyChanged.contact.name)}
+                  </span>
+                  <span className="truncate font-sans text-body-md font-medium text-on-surface">
+                    {keyChanged.contact.name}
+                  </span>
+                </div>
+                <TrustChip status="changed" />
+              </div>
+              <div className="flex items-start gap-2">
+                <MaterialIcon name="warning" size={18} className="text-warning" />
+                <p className="text-label-sm text-on-surface-variant">
+                  This contact's key changed. Verify the fingerprint before sending sensitive
+                  information.
+                </p>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1 rounded-lg border border-outline-variant bg-surface-container-lowest p-3">
+                  <span className="block text-label-sm uppercase tracking-widest text-on-surface-variant">
+                    Previously
+                  </span>
+                  <span className="block break-all font-mono text-mono-code text-on-surface-variant">
+                    {keyChanged.contact.previousFingerprint ?? "—"}
+                  </span>
+                </div>
+                <div className="space-y-1 rounded-lg border border-warning/30 bg-warning/10 p-3">
+                  <span className="block text-label-sm uppercase tracking-widest text-warning">
+                    Now
+                  </span>
+                  <span className="block break-all font-mono text-mono-code text-warning">
+                    {keyChanged.contact.fingerprint}
+                  </span>
+                </div>
+              </div>
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <button
+                  type="button"
+                  onClick={() =>
+                    router.push(`/contacts/detail?id=${encodeURIComponent(keyChanged.contact.id)}`)
+                  }
+                  className="flex h-11 flex-1 items-center justify-center gap-2 rounded-lg bg-primary font-semibold text-on-primary transition-opacity hover:opacity-90"
+                >
+                  <MaterialIcon name="verified" size={18} />
+                  Verify fingerprint
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    // Explicit, deliberately-frictioned override (D8): adopt the changed contact only
+                    // on an unambiguous user action. Red-toned because this is the risky choice.
+                    setPicked(keyChanged);
+                    setKeyChanged(undefined);
+                  }}
+                  className="flex h-11 flex-1 items-center justify-center rounded-lg border border-error text-error transition-colors hover:bg-error/10"
+                >
+                  Send anyway (unsafe)
+                </button>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setKeyChanged(undefined);
+                  setPicked(null);
+                }}
+                className="mx-auto block text-label-sm text-on-surface-variant transition-colors hover:text-on-surface"
+              >
+                Cancel
+              </button>
+            </div>
+          ) : picked && picked.kind === "contact" ? (
+            <div className="flex items-center justify-between gap-3 rounded-lg border border-outline-variant bg-surface-container-lowest p-3">
+              <div className="flex min-w-0 items-center gap-3">
+                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-surface-container-high text-label-sm font-semibold text-on-surface">
+                  {contactInitials(picked.contact.name)}
+                </span>
+                <span className="flex min-w-0 flex-col gap-1">
+                  <span className="flex items-center gap-2">
+                    <span className="truncate font-sans text-body-md text-on-surface">
+                      {picked.contact.name}
+                    </span>
+                    <TrustChip status={picked.contact.status} />
+                  </span>
+                  <span className="truncate font-mono text-label-sm text-on-surface-variant">
+                    {picked.contact.fingerprint}
+                  </span>
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setPicked(null)}
+                className="shrink-0 text-label-sm uppercase tracking-widest text-primary transition-colors hover:underline"
+              >
+                Change
+              </button>
+            </div>
+          ) : (
+            <RecipientPicker onPick={handlePick} />
+          )}
         </div>
 
         {/* Message */}

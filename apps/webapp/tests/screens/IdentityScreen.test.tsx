@@ -5,7 +5,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { __deleteDbForTests } from "@/src/identity/db";
 import { type IdentityContextValue, IdentityProvider } from "@/src/identity/identity-context";
 import { useIdentity } from "@/src/identity/use-identity";
+import { decodeImageData } from "@/src/lib/qr-decode";
+import { toQrMatrix } from "@/src/lib/qr-encode";
 import { IdentityScreen } from "@/src/screens/IdentityScreen";
+import { rasterizeMatrix } from "@/tests/helpers/rasterize";
 
 const PASSPHRASE = "correct horse battery staple";
 
@@ -60,6 +63,22 @@ describe("<IdentityScreen />", () => {
     const el = await screen.findByText(fp);
     expect(el).toBeInTheDocument();
     expect(el).toHaveClass("font-mono");
+  });
+
+  it("shows the public key as a scannable QR that round-trips to the amk1: string", async () => {
+    const { pk } = await setupUnlocked();
+    // The QR renders as an inline <svg>.
+    const svg = await waitFor(() => {
+      const el = document.querySelector('svg[aria-label="Public-key QR code"]');
+      if (el === null) throw new Error("QR not yet rendered");
+      return el;
+    });
+    expect(svg).toBeInTheDocument();
+    expect(screen.getByText(/let a contact scan this to add your key/i)).toBeVisible();
+
+    // Prove a mobile device could scan it: rasterize the same matrix the component draws and decode.
+    const raster = rasterizeMatrix(toQrMatrix(pk));
+    expect(decodeImageData(raster.data, raster.width, raster.height)).toBe(pk);
   });
 
   it("copies the full fingerprint to the clipboard", async () => {

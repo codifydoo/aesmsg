@@ -4,11 +4,13 @@
 // key. Memory lifetime of any unwrapped key is the identity context's concern (Task 7).
 
 const DB_NAME = "aesmsg-webapp";
-// v2 adds the sent-links store (Task 4). The upgrade is purely additive + contains-guarded, so a
-// v1→v2 bump preserves the existing identity row and only creates the new store.
-const DB_VERSION = 2;
+// v2 adds the sent-links store; v3 adds the contacts store (SP4). Every store creation is additive +
+// contains-guarded, so a v1→v2 or v2→v3 bump preserves every existing row (identity + sent-links) and
+// only creates the new store.
+const DB_VERSION = 3;
 export const IDENTITY_STORE = "identity";
 export const SENT_LINKS_STORE = "sent-links";
+export const CONTACTS_STORE = "contacts";
 
 let dbPromise: Promise<IDBDatabase> | null = null;
 
@@ -24,13 +26,16 @@ function openDB(): Promise<IDBDatabase> {
     const request = indexedDB.open(DB_NAME, DB_VERSION);
     request.onupgradeneeded = () => {
       const db = request.result;
-      // Both creations are `contains`-guarded and additive, so this runs for a fresh install AND a
-      // v1→v2 upgrade without touching (or dropping) an existing identity row.
+      // Every creation is `contains`-guarded and additive, so this runs for a fresh install AND any
+      // v1→v2→v3 upgrade without touching (or dropping) an existing identity or sent-links row.
       if (!db.objectStoreNames.contains(IDENTITY_STORE)) {
         db.createObjectStore(IDENTITY_STORE, { keyPath: "id" });
       }
       if (!db.objectStoreNames.contains(SENT_LINKS_STORE)) {
         db.createObjectStore(SENT_LINKS_STORE, { keyPath: "id" });
+      }
+      if (!db.objectStoreNames.contains(CONTACTS_STORE)) {
+        db.createObjectStore(CONTACTS_STORE, { keyPath: "id" });
       }
     };
     request.onsuccess = () => resolve(request.result);

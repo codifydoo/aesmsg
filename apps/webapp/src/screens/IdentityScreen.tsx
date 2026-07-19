@@ -5,6 +5,7 @@ import { MaterialIcon } from "@aesmsg/ui";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { FingerprintBlock } from "@/src/components/FingerprintBlock";
+import { QrCode } from "@/src/components/QrCode";
 import { WipeConfirmDialog } from "@/src/components/WipeConfirmDialog";
 import { useIdentity } from "@/src/identity/use-identity";
 
@@ -67,6 +68,18 @@ export function IdentityScreen() {
             <MaterialIcon name="verified_user" size={16} />
             This device
           </span>
+        </div>
+
+        {/* Own-key QR (mobile parity with MyPublicKeyScreen): the payload is the raw amk1: public-key
+            string (D1) — the exact value the "Copy public key" block exposes — so a mobile user can
+            scan this to add your key. */}
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-fit rounded-xl bg-white p-3">
+            <QrCode value={publicKeyString} />
+          </div>
+          <p className="text-center text-label-sm text-on-surface-variant">
+            Let a contact scan this to add your key.
+          </p>
         </div>
 
         {fp ? (

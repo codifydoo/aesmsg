@@ -1,18 +1,36 @@
-import { exportPublicKey, fingerprint, generateIdentity } from "@aesmsg/crypto";
+import {
+  exportPublicKey,
+  fingerprint,
+  generateIdentity,
+  type PublicKeyString,
+} from "@aesmsg/crypto";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { act } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { RequireUnlocked } from "@/src/components/RequireUnlocked";
+import {
+  __resetContactsForTests,
+  addContact,
+  getContact,
+  setContactVerified,
+  updateContactKey,
+} from "@/src/contacts/contacts-store";
+import { __resetPendingRecipientForTests } from "@/src/create/compose-handoff";
 import { __deleteDbForTests } from "@/src/identity/db";
 import { type IdentityContextValue, IdentityProvider } from "@/src/identity/identity-context";
 import { useIdentity } from "@/src/identity/use-identity";
 import { ComposeScreen } from "@/src/screens/ComposeScreen";
 
 const replace = vi.fn();
+const push = vi.fn();
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ replace, push: vi.fn() }),
+  useRouter: () => ({ replace, push }),
   usePathname: () => "/new",
 }));
+
+async function contactKey(): Promise<PublicKeyString> {
+  return exportPublicKey(await generateIdentity());
+}
 
 interface Captured {
   url: string;
@@ -40,7 +58,10 @@ function stubFetch(): Captured[] {
 describe("<ComposeScreen />", () => {
   beforeEach(async () => {
     replace.mockClear();
+    push.mockClear();
     await __deleteDbForTests();
+    await __resetContactsForTests();
+    __resetPendingRecipientForTests();
   });
   afterEach(() => vi.restoreAllMocks());
 
@@ -113,6 +134,113 @@ describe("<ComposeScreen />", () => {
     const { container } = render(<ComposeScreen />);
     const text = container.textContent ?? "";
     expect(text).not.toMatch(/unbreakable|military-grade|impossible to hack/i);
+  });
+
+  it("seals to a verified saved contact's public key (same seam as a pasted key)", async () => {
+    const pk = await contactKey();
+    const fp = await fingerprint(pk);
+    const c = await addContact({ label: "Verified Val", publicKey: pk });
+    await setContactVerified(c.id, true);
+    const captured = stubFetch();
+    render(<ComposeScreen />);
+
+    fireEvent.click(screen.getByRole("tab", { name: /saved contacts/i }));
+    fireEvent.click(await screen.findByText("Verified Val"));
+    fireEvent.change(screen.getByLabelText(/^message$/i), {
+      target: { value: "SEAL-TO-CONTACT" },
+    });
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: /encrypt & create link/i })).toBeEnabled(),
+    );
+    fireEvent.click(screen.getByRole("button", { name: /encrypt & create link/i }));
+
+    // The link-created view shows the recipient fingerprint derived from THAT contact's key.
+    expect(await screen.findByRole("heading", { name: /link created/i })).toBeVisible();
+    expect(screen.getByText(fp)).toBeVisible();
+    expect(captured).toHaveLength(1);
+    expect(captured[0]?.body).not.toContain("SEAL-TO-CONTACT");
+  });
+
+  it("BLOCKS a key-changed contact: no seal without an explicit acknowledgment", async () => {
+    const changed = await addContact({ label: "Changed Cho", publicKey: await contactKey() });
+    await updateContactKey(changed.id, await contactKey()); // derived status → "changed"
+    const captured = stubFetch();
+    render(<ComposeScreen />);
+
+    fireEvent.click(screen.getByRole("tab", { name: /saved contacts/i }));
+    fireEvent.click(await screen.findByText("Changed Cho"));
+
+    // The amber gate appears and the submit is blocked — createAndSeal (the only thing that POSTs)
+    // has NOT run.
+    const gate = await screen.findByRole("alertdialog", { name: /contact key changed/i });
+    expect(gate.className).toContain("border-warning");
+    expect(gate.className).not.toContain("bg-error");
+    expect(screen.getByRole("button", { name: /encrypt & create link/i })).toBeDisabled();
+    expect(captured).toHaveLength(0);
+
+    // Only an explicit "Send anyway (unsafe)" adopts the recipient; a subsequent submit then seals.
+    fireEvent.click(screen.getByRole("button", { name: /send anyway \(unsafe\)/i }));
+    fireEvent.change(screen.getByLabelText(/^message$/i), {
+      target: { value: "OVERRIDE-MARKER" },
+    });
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: /encrypt & create link/i })).toBeEnabled(),
+    );
+    fireEvent.click(screen.getByRole("button", { name: /encrypt & create link/i }));
+
+    expect(await screen.findByRole("heading", { name: /link created/i })).toBeVisible();
+    expect(captured).toHaveLength(1);
+    expect(captured[0]?.body).not.toContain("OVERRIDE-MARKER");
+  });
+
+  it("routes a key-changed contact to verification WITHOUT mutating the stored contact record", async () => {
+    const changed = await addContact({ label: "Changed Cho", publicKey: await contactKey() });
+    await updateContactKey(changed.id, await contactKey());
+    const before = await getContact(changed.id);
+    const captured = stubFetch();
+    render(<ComposeScreen />);
+
+    fireEvent.click(screen.getByRole("tab", { name: /saved contacts/i }));
+    fireEvent.click(await screen.findByText("Changed Cho"));
+    fireEvent.click(await screen.findByRole("button", { name: /verify fingerprint/i }));
+
+    expect(push).toHaveBeenCalledWith(`/contacts/detail?id=${encodeURIComponent(changed.id)}`);
+    expect(captured).toHaveLength(0);
+    // The compose gate's Verify route commits nothing — the stored contact is byte-identical.
+    expect(await getContact(changed.id)).toEqual(before);
+  });
+
+  it("recovers from a stranded key-changed gate by switching to the Paste tab (seals to the PASTED key)", async () => {
+    const changed = await addContact({ label: "Changed Cho", publicKey: await contactKey() });
+    await updateContactKey(changed.id, await contactKey()); // derived status → "changed"
+    const pastedPk = await contactKey();
+    const pastedFp = await fingerprint(pastedPk);
+    const captured = stubFetch();
+    render(<ComposeScreen />);
+
+    fireEvent.click(screen.getByRole("tab", { name: /saved contacts/i }));
+    fireEvent.click(await screen.findByText("Changed Cho"));
+
+    // In contact mode the gate strands submit (no visible control in the Paste tab otherwise).
+    await screen.findByRole("alertdialog", { name: /contact key changed/i });
+    expect(screen.getByRole("button", { name: /encrypt & create link/i })).toBeDisabled();
+
+    // Switching to the Paste tab clears the stranded gate; a valid pasted key re-enables submit.
+    fireEvent.click(screen.getByRole("tab", { name: /paste key/i }));
+    fireEvent.change(screen.getByLabelText(/recipient public key/i), {
+      target: { value: pastedPk },
+    });
+    fireEvent.change(screen.getByLabelText(/^message$/i), { target: { value: "PASTE-RECOVERY" } });
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: /encrypt & create link/i })).toBeEnabled(),
+    );
+    fireEvent.click(screen.getByRole("button", { name: /encrypt & create link/i }));
+
+    // Sealed to the PASTED key's fingerprint, not the changed contact's.
+    expect(await screen.findByRole("heading", { name: /link created/i })).toBeVisible();
+    expect(screen.getByText(pastedFp)).toBeVisible();
+    expect(captured).toHaveLength(1);
+    expect(captured[0]?.body).not.toContain("PASTE-RECOVERY");
   });
 });
 

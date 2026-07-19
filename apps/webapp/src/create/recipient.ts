@@ -1,32 +1,17 @@
-import {
-  type Fingerprint,
-  fingerprint,
-  importPublicKey,
-  type PublicKeyString,
-} from "@aesmsg/crypto";
+import { type PublicKeyValidation, validatePublicKey } from "@/src/lib/validate-public-key";
 
-// Validate a pasted recipient public key without ever throwing at the UI. This is the seam SP4's
-// saved-contact picker will plug into: the compose screen consumes { publicKey, fingerprint }
-// regardless of whether the key came from a paste, a saved contact, or a scanned QR.
+// Validate a pasted recipient public key without ever throwing at the UI. Since SP4 this delegates to
+// the shared, source-agnostic `validatePublicKey` (used by add-contact + re-key too) so paste, saved
+// contact, and scanned QR all reach crypto through one implementation. The public
+// `validateRecipientKey`/`RecipientValidation` API is kept so SP2 callers + tests need no change.
 
-export type RecipientValidation =
-  | { ok: true; publicKey: PublicKeyString; fingerprint: Fingerprint }
-  | { ok: false; reason: "empty" | "invalid" };
+export type RecipientValidation = PublicKeyValidation;
 
 /**
- * Trim, then importPublicKey + fingerprint under try/catch. A non-`amk1:`/malformed key resolves to
- * { ok:false, reason:"invalid" } rather than throwing. The derived AM- fingerprint is for display +
- * the local sent-link record only — never uploaded.
+ * Trim, then importPublicKey + fingerprint under try/catch (delegated to `validatePublicKey`). A
+ * non-`amk1:`/malformed key resolves to { ok:false, reason:"invalid" } rather than throwing. The
+ * derived AM- fingerprint is for display + the local sent-link record only — never uploaded.
  */
 export async function validateRecipientKey(input: string): Promise<RecipientValidation> {
-  const trimmed = input.trim();
-  if (trimmed.length === 0) return { ok: false, reason: "empty" };
-  try {
-    // importPublicKey throws on a bad amk1 key; fingerprint derives the AM- display value locally.
-    await importPublicKey(trimmed);
-    const fp = await fingerprint(trimmed as PublicKeyString);
-    return { ok: true, publicKey: trimmed as PublicKeyString, fingerprint: fp };
-  } catch {
-    return { ok: false, reason: "invalid" };
-  }
+  return validatePublicKey(input);
 }
