@@ -99,6 +99,23 @@ pnpm --filter @aesmsg/webapp build   # -> apps/webapp/out/ (static files, no Nod
 
 `NEXT_PUBLIC_AESMSG_API_ORIGIN` is a **build-time** variable (default `https://api.aesmsg.com`). Set it before `build` only if the API origin differs; it is baked into the CSP `connect-src` at build time.
 
+### Reader route — the `/l/<id>` host rewrite (REQUIRED)
+
+The recipient reader is a **plain static route `/l`** that `next build` emits as **`out/l.html`** — there is **no** dynamic `/l/[id]` segment (a dynamic segment cannot build under `output: 'export'`, and a pre-rendered `[id]` cannot serve an arbitrary id from a static host). The public link shape is fixed (`aesmsg.com/l/<id>`, and the bouncer's "Open in browser" points at `app.aesmsg.com/l/<id>`), so the static host **must rewrite** `/l/<id>` to serve that same `l.html` **without a redirect and without changing the browser URL** — the client then reads the id from `location.pathname`:
+
+```nginx
+# Reader shell: serve the same static l.html for /l and for /l/<16-char base64url id>.
+# The client parses the id from location.pathname; try_files serves the file WITHOUT changing the
+# URL, so location.pathname is still /l/<id> when the client reads it. Junk paths 404 at the edge;
+# the client re-validates the id regardless (defense in depth).
+location = /l  { try_files /l.html =404; }
+location ~ "^/l/[A-Za-z0-9_-]{16}/?$" { try_files /l.html =404; }
+```
+
+The 16-char class mirrors the app's `LINK_ID_REGEX`. There is **no** `next.config` `rewrites()` — rewrites are unsupported under `output: 'export'` and error under `next dev`; local dev uses the `/l?id=<id>` query fallback instead. The reader shell is **zero-network on load** (a link-preview bot that GETs `/l/<id>` receives only the static shell — no ciphertext, no metadata call, no consumed open); the single `POST /api/messages/:id/open` fires only on an explicit "Open message" tap.
+
+Note: the **bouncer** on `aesmsg.com` (`apps/web`) now offers an **"Open in browser"** action → `app.aesmsg.com/l/<id>` (a plain static `<a>`, still 100% static). Its origin is build-time overridable via `NEXT_PUBLIC_AESMSG_WEBAPP_ORIGIN` (default `https://app.aesmsg.com`) on the `apps/web` build. No new server env, and **no `apps/api` change**, ships with the reader (the `AESMSG_WEBAPP_ORIGIN` CORS allowlist that makes `/open` reachable cross-origin already landed with the sender flow).
+
 ### Content-Security-Policy (per-page meta + authoritative header)
 
 The policy is delivered two ways, both first-party and server-free:

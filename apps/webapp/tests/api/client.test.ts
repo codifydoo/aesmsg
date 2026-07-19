@@ -6,6 +6,8 @@ import {
   listMessages,
   MalformedResponseError,
   NetworkError,
+  type OpenMessageResponse,
+  openMessage,
   postMessage,
   REVOCATION_TOKEN_HEADER,
   revokeLink,
@@ -159,5 +161,69 @@ describe("api client", () => {
     expect(classifyApiError(new MalformedResponseError("bad"))).toBe("network");
     expect(classifyApiError(new Error("something else"))).toBe("unknown");
     expect(classifyApiError("nope")).toBe("unknown");
+  });
+
+  // ── openMessage (the reader's single open-consuming POST) ──────────────────────
+
+  const OPEN_ID = "abcdefghijkl0123";
+
+  const validOpenBody: OpenMessageResponse = {
+    ciphertext: "Y2lwaGVydGV4dA==",
+    createdAt: null,
+    expiresAt: "2030-01-01T00:00:00.000Z",
+    opensCount: 1,
+    maxOpens: 1,
+    status: "active",
+  };
+
+  it("openMessage POSTs to /api/messages/:id/open with NO body and parses the v2 response", async () => {
+    let capturedUrl: string | undefined;
+    let capturedInit: RequestInit | undefined;
+    vi.spyOn(globalThis, "fetch").mockImplementation(async (url, init) => {
+      capturedUrl = String(url);
+      capturedInit = init as RequestInit;
+      return jsonResponse(validOpenBody);
+    });
+
+    const res = await openMessage(OPEN_ID);
+
+    expect(capturedUrl).toBe(`${API_ORIGIN}/api/messages/${OPEN_ID}/open`);
+    expect(capturedInit?.method).toBe("POST");
+    // The server 400s any body — the reader must send none (and no content-type).
+    expect(capturedInit?.body).toBeUndefined();
+    expect(capturedInit?.cache).toBe("no-store");
+    expect(res).toEqual(validOpenBody);
+  });
+
+  it("openMessage preserves a legacy v1 createdAt string", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      jsonResponse({ ...validOpenBody, createdAt: "2026-01-01T00:00:00.000Z" }),
+    );
+    const res = await openMessage(OPEN_ID);
+    expect(res.createdAt).toBe("2026-01-01T00:00:00.000Z");
+  });
+
+  it("openMessage surfaces a 410 as ApiError(410) — the reader's opaque 'gone'", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(jsonResponse({ error: "gone" }, 410));
+    const err = await openMessage(OPEN_ID).catch((e) => e);
+    expect(err).toBeInstanceOf(ApiError);
+    expect((err as ApiError).status).toBe(410);
+  });
+
+  it("openMessage surfaces a 400 as ApiError(400) — structurally invalid", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(jsonResponse({ error: "bad" }, 400));
+    const err = await openMessage(OPEN_ID).catch((e) => e);
+    expect(err).toBeInstanceOf(ApiError);
+    expect((err as ApiError).status).toBe(400);
+  });
+
+  it("openMessage throws MalformedResponseError on a garbage 200 body", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(jsonResponse({ nope: true }));
+    await expect(openMessage(OPEN_ID)).rejects.toBeInstanceOf(MalformedResponseError);
+  });
+
+  it("openMessage maps a rejected fetch to NetworkError", async () => {
+    vi.spyOn(globalThis, "fetch").mockRejectedValue(new TypeError("Failed to fetch"));
+    await expect(openMessage(OPEN_ID)).rejects.toBeInstanceOf(NetworkError);
   });
 });

@@ -3,8 +3,10 @@
 // the origin comes from NEXT_PUBLIC_AESMSG_API_ORIGIN (already in the SP1 CSP connect-src), and a
 // rejected fetch (offline / DNS / CORS-blocked) is normalized to a NetworkError.
 //
-// SP2 ships create (postMessage), list (listMessages), and revoke (revokeLink). The reader's
-// getMessage/openMessage response types are DECLARED for SP3 but not wired here.
+// SP2 ships create (postMessage), list (listMessages), and revoke (revokeLink). SP3 wires the
+// reader's openMessage (POST /open — the single open-consuming call). MessageMetadata / a metadata
+// GET stays DECLARED but unwired: the reader is intentionally metadata-free (no pre-open GET), so a
+// link preview never touches the API.
 
 const API_ORIGIN = process.env.NEXT_PUBLIC_AESMSG_API_ORIGIN ?? "https://api.aesmsg.com";
 
@@ -270,8 +272,11 @@ export async function revokeLink(
   if (!res.ok) throw new ApiError(res.status);
 }
 
-// ── Reader types (SP3 — declared, not wired here) ─────────────────────────────────
+// ── Reader (SP3) ──────────────────────────────────────────────────────────────────
 
+// MessageMetadata is DECLARED for a possible pre-open metadata GET but stays UNWIRED: the reader
+// holds the zero-network-before-action invariant, so it never GETs metadata — openMessage below is
+// the only reader call, and it fires only on an explicit tap.
 export interface MessageMetadata {
   status: "active" | "revoked" | "expired";
   expiresAt: string;
@@ -287,4 +292,41 @@ export interface OpenMessageResponse {
   opensCount: number;
   maxOpens: number;
   status: "active" | "revoked" | "expired";
+}
+
+function validateOpenMessageResponse(body: unknown): OpenMessageResponse {
+  if (!isRecord(body)) throw new MalformedResponseError("open response was not an object");
+  if (typeof body.ciphertext !== "string" || body.ciphertext.length === 0)
+    throw new MalformedResponseError("open response is missing ciphertext");
+  // createdAt is string for legacy v1 links, null for v2 — both are valid; anything else is bad.
+  if (body.createdAt !== null && typeof body.createdAt !== "string")
+    throw new MalformedResponseError("open response createdAt must be a string or null");
+  if (typeof body.expiresAt !== "string")
+    throw new MalformedResponseError("open response is missing expiresAt");
+  if (typeof body.opensCount !== "number" || typeof body.maxOpens !== "number")
+    throw new MalformedResponseError("open response is missing opens fields");
+  if (body.status !== "active" && body.status !== "revoked" && body.status !== "expired")
+    throw new MalformedResponseError("open response has an unknown status");
+  return body as unknown as OpenMessageResponse;
+}
+
+/**
+ * CONSUMES ONE OPEN. POSTs `/api/messages/:id/open` with an EMPTY body (the server 400s any body,
+ * so no content-type/body is sent) and returns the opaque ciphertext + open metadata. This is the
+ * single open-consuming call in the whole recipient flow — the reader issues it exactly once, only
+ * on an explicit user action, never on a link preview. `cache: "no-store"` keeps an intermediary
+ * from replaying a stale open. A non-2xx flows through as an ApiError with its exact status (the
+ * 410/404 the reader collapses to "no longer available", and the 400 it treats as structurally
+ * invalid, are preserved verbatim). Interop-critical companion: src/reader/open-and-decrypt.ts.
+ */
+export async function openMessage(
+  id: string,
+  options: RequestOptions = {},
+): Promise<OpenMessageResponse> {
+  return fetchJson(
+    `/api/messages/${encodeURIComponent(id)}/open`,
+    { method: "POST", cache: "no-store" },
+    validateOpenMessageResponse,
+    options,
+  );
 }
