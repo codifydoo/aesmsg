@@ -3,8 +3,8 @@ import {
   type Fingerprint,
   type PublicKeyString,
 } from "@aesmsg/crypto";
-import { getEncryptedStore } from "@/src/storage";
 import { MAX_LABEL_LEN } from "@/src/contacts/label";
+import { getEncryptedStore } from "@/src/storage";
 
 // Real, encrypted-at-rest contact directory. Mirrors apps/web/src/lib/contacts-store.ts API +
 // error types VERBATIM, swapping web's IndexedDB backend for the single shared on-device

@@ -3,14 +3,11 @@ import { describe, expect, it, vi } from "vitest";
 import {
   buildContactCard,
   CONTACT_CARD_FILENAME,
-  type DocumentPickerLike,
-  type FileSystemLike,
   InvalidContactCardError,
   importContactCard,
   parseContactCard,
   pickCardFile,
   readCardFile,
-  type SharingLike,
   shareCard,
   writeCardToCache,
 } from "@/src/contacts/contact-card";

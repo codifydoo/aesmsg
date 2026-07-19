@@ -17,7 +17,6 @@ export {
   AddContactScreen,
   type AddContactScreenProps,
 } from "@/src/contacts/AddContactScreen";
-export { ComingSoonScreen, type ComingSoonScreenProps } from "@/src/contacts/ComingSoonScreen";
 export {
   ContactDetailScreen,
   type ContactDetailScreenProps,
