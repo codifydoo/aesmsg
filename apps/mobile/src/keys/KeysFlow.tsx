@@ -146,13 +146,20 @@ export default function KeysFlow({ publicKeyString, identity }: KeysFlowProps) {
   // Export my identity as a plaintext contact card: build → write to cache → share sheet → clean up
   // the cache copy. No biometric gate (a public key is non-secret) and no success sheet (the system
   // share sheet is the confirmation). The name is UI-gated (1–80) so buildContactCard never throws.
+  // Called fire-and-forget, so a rare cache-write failure is swallowed rather than surfacing as an
+  // unhandled rejection: the card is a non-secret public key and nothing was shared, so there is
+  // nothing to leak and nothing to clean up.
   async function handleExportContactCard(displayName: string) {
-    const card = buildContactCard(displayName, publicKeyString);
-    const written = await writeCardToCache(cardShareDeps, card);
     try {
-      await shareCard(cardShareDeps, written.uri);
-    } finally {
-      void written.cleanup();
+      const card = buildContactCard(displayName, publicKeyString);
+      const written = await writeCardToCache(cardShareDeps, card);
+      try {
+        await shareCard(cardShareDeps, written.uri);
+      } finally {
+        void written.cleanup();
+      }
+    } catch {
+      // Non-fatal: nothing was shared and the payload is non-secret; no user-facing error needed.
     }
   }
 
