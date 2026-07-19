@@ -32,11 +32,19 @@ export interface PasteKeyScreenProps {
   };
   /** Pre-populate the key field (e.g. handed in from the QR scanner). */
   initialKey?: string;
+  /** Pre-populate the name field (e.g. the suggested name from an imported contact card). */
+  initialName?: string;
 }
 
-export function PasteKeyScreen({ onBack, onAdded, rekey, initialKey }: PasteKeyScreenProps) {
+export function PasteKeyScreen({
+  onBack,
+  onAdded,
+  rekey,
+  initialKey,
+  initialName,
+}: PasteKeyScreenProps) {
   const [key, setKey] = useState(initialKey ?? "");
-  const [name, setName] = useState("");
+  const [name, setName] = useState(initialName ?? "");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 

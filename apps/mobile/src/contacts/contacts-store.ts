@@ -3,6 +3,7 @@ import {
   type Fingerprint,
   type PublicKeyString,
 } from "@aesmsg/crypto";
+import { MAX_LABEL_LEN } from "@/src/contacts/label";
 import { getEncryptedStore } from "@/src/storage";
 
 // Real, encrypted-at-rest contact directory. Mirrors apps/web/src/lib/contacts-store.ts API +
@@ -15,7 +16,6 @@ import { getEncryptedStore } from "@/src/storage";
 // compose seal path treats a picked contact exactly like a pasted key.
 
 export const CONTACTS_BLOB_KEY = "contacts";
-const MAX_LABEL_LEN = 80;
 
 export interface ContactRecord {
   id: string; // stable uuid; survives key rotation

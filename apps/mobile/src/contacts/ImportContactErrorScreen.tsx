@@ -2,38 +2,29 @@ import { StyleSheet, Text, View } from "react-native";
 import { AppBar, Button, Icon, Medallion, Screen } from "@/src/components";
 import { colors } from "@/src/theme";
 
-// Placeholder destination for flows that need a native capability not wired up yet.
-//
-// FOLLOW-UP (tracked): screen 37 "Scan QR" needs the device camera, which the Foundation phase
-// owns (expo-camera / barcode scanning + permissions). Rather than ship a fake scanner, this screen
-// states the capability is coming. "Paste public key" lands here too for now — clipboard ingestion
-// + public-key parsing/validation is the same follow-up slice. Neither path fabricates a contact.
+// Shown when a picked "Import contact file" isn't a valid aesmsg contact card — non-JSON, missing the
+// contact-card type tag (e.g. an identity-backup file picked by mistake), or a malformed key. One
+// message covers every failure per the design; it is a first-class state, not a toast or a crash.
 
-export interface ComingSoonScreenProps {
-  title: string;
-  /** What is coming, e.g. "Camera scanning is coming soon." */
-  message: string;
-  icon?: string;
+export interface ImportContactErrorScreenProps {
   onBack: () => void;
 }
 
-export function ComingSoonScreen({
-  title,
-  message,
-  icon = "qr_code_scanner",
-  onBack,
-}: ComingSoonScreenProps) {
+export function ImportContactErrorScreen({ onBack }: ImportContactErrorScreenProps) {
   return (
     <View style={styles.root}>
-      <AppBar title={title} onLeading={onBack} />
+      <AppBar title="Import contact file" onLeading={onBack} />
       <Screen topInset={false} contentStyle={styles.content}>
         <Medallion size={72}>
-          <Icon name={icon} size={32} color={colors.onSurfaceVariant} />
+          <Icon name="warning" size={32} color={colors.onSurfaceVariant} />
         </Medallion>
         <Text style={styles.heading} accessibilityRole="header">
-          Coming soon
+          Couldn't import
         </Text>
-        <Text style={styles.body}>{message}</Text>
+        <Text style={styles.body}>
+          This isn't a valid aesmsg contact file. Ask your contact to export a new contact card and
+          try again.
+        </Text>
         <View style={styles.actions}>
           <Button kind="outline" onPress={onBack}>
             Back

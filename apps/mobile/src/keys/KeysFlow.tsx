@@ -10,6 +10,13 @@ import {
 import * as FileSystem from "expo-file-system/legacy";
 import * as Sharing from "expo-sharing";
 import { useEffect, useRef, useState } from "react";
+import {
+  buildContactCard,
+  type FileSystemLike as CardFileSystemLike,
+  type SharingLike as CardSharingLike,
+  shareCard,
+  writeCardToCache,
+} from "@/src/contacts/contact-card";
 import { useIdentity } from "@/src/identity/use-identity";
 import { performBiometricConfirmation } from "@/src/onboarding/biometric-onboarding";
 import { ExportBackupScreen } from "./ExportBackupScreen";
@@ -56,6 +63,10 @@ export interface KeysFlowProps {
 }
 
 const shareDeps = { FileSystem, Sharing } as unknown as WriteAndShareDeps;
+const cardShareDeps = { FileSystem, Sharing } as unknown as {
+  FileSystem: CardFileSystemLike;
+  Sharing: CardSharingLike;
+};
 
 type Route =
   | { kind: "publicKey" }
@@ -132,6 +143,26 @@ export default function KeysFlow({ publicKeyString, identity }: KeysFlowProps) {
     }
   }
 
+  // Export my identity as a plaintext contact card: build → write to cache → share sheet → clean up
+  // the cache copy. No biometric gate (a public key is non-secret) and no success sheet (the system
+  // share sheet is the confirmation). The name is UI-gated (1–80) so buildContactCard never throws.
+  // Called fire-and-forget, so a rare cache-write failure is swallowed rather than surfacing as an
+  // unhandled rejection: the card is a non-secret public key and nothing was shared, so there is
+  // nothing to leak and nothing to clean up.
+  async function handleExportContactCard(displayName: string) {
+    try {
+      const card = buildContactCard(displayName, publicKeyString);
+      const written = await writeCardToCache(cardShareDeps, card);
+      try {
+        await shareCard(cardShareDeps, written.uri);
+      } finally {
+        void written.cleanup();
+      }
+    } catch {
+      // Non-fatal: nothing was shared and the payload is non-secret; no user-facing error needed.
+    }
+  }
+
   function dismissExportDone() {
     setExportDone(false);
     // Wipe the written ciphertext cache file once the user dismisses the sheet — best-effort.
@@ -177,6 +208,7 @@ export default function KeysFlow({ publicKeyString, identity }: KeysFlowProps) {
       publicKeyString={publicKeyString}
       onExportBackup={() => setRoute({ kind: "exportBackup" })}
       onRotateKey={() => setRoute({ kind: "rotateConfirm" })}
+      onExportContactCard={(name) => void handleExportContactCard(name)}
     />
   );
 }

@@ -1,10 +1,16 @@
 import type { Fingerprint, PublicKeyString } from "@aesmsg/crypto";
+import * as DocumentPicker from "expo-document-picker";
+import * as FileSystem from "expo-file-system/legacy";
 import { useCallback, useEffect, useState } from "react";
 import { AddContactScreen } from "@/src/contacts/AddContactScreen";
-import { ComingSoonScreen } from "@/src/contacts/ComingSoonScreen";
 import { ContactDetailScreen } from "@/src/contacts/ContactDetailScreen";
 import { ContactsEmptyScreen } from "@/src/contacts/ContactsEmptyScreen";
 import { ContactsListScreen } from "@/src/contacts/ContactsListScreen";
+import {
+  type DocumentPickerLike,
+  type FileSystemLike,
+  importContactCard,
+} from "@/src/contacts/contact-card";
 import type { Contact } from "@/src/contacts/contacts-data";
 import { contactRecordToContact } from "@/src/contacts/contacts-display";
 import {
@@ -16,6 +22,7 @@ import {
   setContactVerified,
   updateContactKey,
 } from "@/src/contacts/contacts-store";
+import { ImportContactErrorScreen } from "@/src/contacts/ImportContactErrorScreen";
 import { detectKeyChange, keyChangeAlertView } from "@/src/contacts/key-change";
 import { PasteKeyScreen } from "@/src/contacts/PasteKeyScreen";
 import { QRScanScreen } from "@/src/contacts/QRScanScreen";
@@ -29,7 +36,8 @@ import { KeyChangedAlertScreen } from "@/src/keys/KeyChangedAlertScreen";
 // Contact view-model), routes between the contacts screens (34/35/36/37/38/39/44), and persists
 // mutations (mark-verified, remove, re-key). Pasting a public key and scanning a QR are both live
 // (PasteKeyScreen → addContact; QRScanScreen decodes an amk1: key → prefilled PasteKeyScreen);
-// only .aesmsg file import remains a ComingSoonScreen placeholder. Nothing here fabricates a contact.
+// importing a .aesmsg contact card file is also live (pick → parse → prefilled PasteKeyScreen, or the
+// import-error screen for an invalid file). Nothing here fabricates a contact.
 //
 // KEY-CHANGED DETECTION (the product's MitM defense): scanning/pasting a key FROM an existing
 // contact's detail (routes carry that contact's `contactId`) runs key-change detection instead of an
@@ -47,7 +55,7 @@ type Route =
   | { name: "verify"; contactId: string }
   // `contactId` present ⇒ re-key an EXISTING contact (key-change detection); absent ⇒ add a new one.
   | { name: "scan"; contactId?: string }
-  | { name: "paste"; prefillKey?: string; contactId?: string }
+  | { name: "paste"; prefillKey?: string; prefillName?: string; contactId?: string }
   // Key-Changed alert (44): a re-scanned/pasted key differs from the one on file. Carries the
   // candidate key (to commit via updateContactKey) + the real previous/new fingerprints to display.
   | {
@@ -57,7 +65,7 @@ type Route =
       previousFingerprint: Fingerprint;
       newFingerprint: Fingerprint;
     }
-  | { name: "import-soon" };
+  | { name: "import-error" };
 
 export interface ContactsFlowProps {
   /**
@@ -83,6 +91,27 @@ export default function ContactsFlow({ onSendToContact, initialIntent }: Contact
         ? { name: "add" }
         : { name: "list" },
   );
+
+  // expo modules are wider than the pure module's minimal DI shapes; bridge with `as unknown as`
+  // exactly as KeysFlow / ImportBackupScreenIntegration do. Runtime calls are identical.
+  const importDeps = { DocumentPicker, FileSystem } as unknown as {
+    DocumentPicker: DocumentPickerLike;
+    FileSystem: Pick<FileSystemLike, "EncodingType" | "readAsStringAsync">;
+  };
+
+  async function handleImportPick() {
+    const outcome = await importContactCard(importDeps);
+    if (outcome.kind === "canceled") return; // stay on the add screen
+    if (outcome.kind === "error") {
+      setRoute({ name: "import-error" });
+      return;
+    }
+    setRoute({
+      name: "paste",
+      prefillKey: outcome.card.publicKey,
+      prefillName: outcome.card.label,
+    });
+  }
 
   const reload = useCallback(async () => {
     const next = await listContacts();
@@ -148,7 +177,7 @@ export default function ContactsFlow({ onSendToContact, initialIntent }: Contact
     route.name !== "scan" &&
     route.name !== "paste" &&
     route.name !== "key-changed" &&
-    route.name !== "import-soon"
+    route.name !== "import-error"
   ) {
     return (
       <ContactsEmptyScreen
@@ -192,15 +221,11 @@ export default function ContactsFlow({ onSendToContact, initialIntent }: Contact
       return (
         <AddContactScreen
           onBack={goList}
-          onPick={(method) =>
-            setRoute(
-              method === "scan"
-                ? { name: "scan" }
-                : method === "paste"
-                  ? { name: "paste" }
-                  : { name: "import-soon" },
-            )
-          }
+          onPick={(method) => {
+            if (method === "scan") setRoute({ name: "scan" });
+            else if (method === "paste") setRoute({ name: "paste" });
+            else void handleImportPick();
+          }}
         />
       );
 
@@ -264,6 +289,7 @@ export default function ContactsFlow({ onSendToContact, initialIntent }: Contact
         <PasteKeyScreen
           onBack={goList}
           {...(route.prefillKey !== undefined ? { initialKey: route.prefillKey } : {})}
+          {...(route.prefillName !== undefined ? { initialName: route.prefillName } : {})}
           onAdded={async (id) => {
             await reload();
             goDetail(id);
@@ -304,15 +330,8 @@ export default function ContactsFlow({ onSendToContact, initialIntent }: Contact
       );
     }
 
-    case "import-soon":
-      return (
-        <ComingSoonScreen
-          title="Import contact file"
-          icon="cloud_upload"
-          message="Importing a .aesmsg contact file is coming soon."
-          onBack={goList}
-        />
-      );
+    case "import-error":
+      return <ImportContactErrorScreen onBack={goList} />;
 
     default:
       return listScreen;
