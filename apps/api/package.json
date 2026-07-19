@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@aesmsg/server-store": "workspace:*",
+    "@fastify/cors": "^11",
     "fastify": "^5.2.0",
     "tsx": "^4.19.2"
   },

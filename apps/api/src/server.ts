@@ -1,3 +1,4 @@
+import cors from "@fastify/cors";
 import Fastify, { type FastifyError, type FastifyInstance } from "fastify";
 import { resolveMaxRetentionMs } from "./handlers/messages-handler";
 import { resolveTrustProxy } from "./lib/trust-proxy";
@@ -10,6 +11,12 @@ import { getStores } from "./stores/stores";
 
 export interface BuildServerOptions {
   publicLinkOrigin?: string;
+  // The single browser origin allowed to call this API cross-origin (the messaging web client at
+  // app.aesmsg.com). Defaults to the scoped AESMSG_WEBAPP_ORIGIN env resolution
+  // ("https://app.aesmsg.com" if unset); accepts an explicit value for tests. Soft config with a
+  // sensible default — NOT a boot gate (deliberately absent from assertProductionConfig). See the
+  // CORS registration below for the single-origin allowlist semantics.
+  webappOrigin?: string;
   // Global retention ceiling in ms (roadmap 2.5). Defaults to the scoped AESMSG_MAX_RETENTION_MS env
   // resolution (365 days if unset/invalid). Accepts an explicit value for tests.
   maxRetentionMs?: number;
@@ -32,6 +39,10 @@ const MAX_BODY_BYTES = 38 * 1024 * 1024;
 export function buildServer(options: BuildServerOptions = {}): FastifyInstance {
   const publicLinkOrigin =
     options.publicLinkOrigin ?? process.env.AESMSG_PUBLIC_LINK_ORIGIN ?? "https://aesmsg.com";
+  // Single browser origin allowed to call this API cross-origin (mirrors the publicLinkOrigin
+  // env-with-sensible-default pattern exactly). Soft config: a missing value never blocks boot.
+  const webappOrigin =
+    options.webappOrigin ?? process.env.AESMSG_WEBAPP_ORIGIN ?? "https://app.aesmsg.com";
 
   // Two deliberate security postures are encoded here:
   //
@@ -41,9 +52,18 @@ export function buildServer(options: BuildServerOptions = {}): FastifyInstance {
   // hash-ip.ts deliberately HMACs away in Redis. We disable automatic request logging;
   // `app.log.error()`/`app.log.info()` for intentional, IP-free lines still work.
   //
-  // CORS: this API registers NO CORS plugin on purpose (native-only clients; mobile fetch is not
-  // CORS-bound, the web bouncer makes no API calls). Deny-all-by-absence is intentional; do not add
-  // @fastify/cors with default origin reflection.
+  // CORS: this API registers @fastify/cors as a SINGLE-ORIGIN ALLOWLIST for the browser web client
+  // (app.aesmsg.com, resolved via webappOrigin above). It is NOT default origin reflection: the
+  // predicate reflects Access-Control-Allow-Origin ONLY for exactly `webappOrigin`; every other
+  // browser origin gets NO Access-Control-Allow-Origin (deny-all remains the posture for all but the
+  // one allowed origin). Requests with no Origin header (native app, curl, server-to-server) are NOT
+  // rejected and get no Access-Control-Allow-Origin either — CORS headers are only meaningful to
+  // browsers, and mobile fetch is not CORS-bound. One header IS added universally, though: because the
+  // `origin` option below is a FUNCTION (a non-static origin), @fastify/cors stamps `Vary: Origin` on
+  // EVERY response, including no-Origin ones, per the HTTP-cache spec
+  // (https://fetch.spec.whatwg.org/#cors-protocol-and-http-caches). That is correct cache-key hygiene,
+  // not a behavior change — it carries no id/IP and reflects no origin — so it is benign under the
+  // zero-knowledge posture. See registration just below the Fastify() instance.
   //
   // trustProxy: SCOPED (BE-2 / R3). Was `true`, which trusted every hop and let any client forge
   // X-Forwarded-For to rotate the per-IP rate-limit key. It now defaults to `false` (use the socket
@@ -125,6 +145,26 @@ export function buildServer(options: BuildServerOptions = {}): FastifyInstance {
       maxRetentionMs / (24 * 60 * 60 * 1000),
     )} days) [AESMSG_MAX_RETENTION_MS]`,
   );
+
+  // Single-origin CORS allowlist for the browser web client (D3). Registered BEFORE the routes so its
+  // onRequest hook + preflight OPTIONS handler are in place for every message endpoint. The predicate
+  // reflects Access-Control-Allow-Origin ONLY when the request Origin equals `webappOrigin`; a
+  // non-matching origin resolves to `false`, so no ACAO is written (browser-denied) — the HTTP request
+  // itself is never rejected, keeping non-browser callers unaffected. A request with no Origin header
+  // (native app, curl) hits the `!origin` branch: CORS headers are meaningless without an Origin, so it
+  // is not rejected and, because there is nothing to reflect, no ACAO header is emitted either. One
+  // caveat: a function `origin` counts as a non-static origin option, so @fastify/cors additionally
+  // stamps `Vary: Origin` on that response (and every other) for correct HTTP-cache keying — no ACAO,
+  // just the Vary hint. That is expected, id/IP-free, and asserted in the no-Origin CORS test group.
+  app.register(cors, {
+    origin(origin, cb) {
+      if (!origin) {
+        cb(null, true);
+        return;
+      }
+      cb(null, origin === webappOrigin);
+    },
+  });
 
   registerHealthRoutes(app);
   registerMessageRoutes(app, publicLinkOrigin, maxRetentionMs);
