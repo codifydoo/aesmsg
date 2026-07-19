@@ -29,6 +29,7 @@ Runs via `tsx` (no build step). Deploy it as a long-running container behind the
 | `REDIS_URL` | **prod** | Redis for rate limiting. Attach a Sproobo Redis service. |
 | `RATE_LIMIT_IP_SALT` | **prod** | HMAC salt for rate-limit IP keys — **≥ 32 bytes**. The process **refuses to boot in production without it** (it fails closed rather than log raw IPs). Generate with `openssl rand -hex 32`. |
 | `AESMSG_PUBLIC_LINK_ORIGIN` | **prod** | Origin used to build the `/l/:id` links returned by `POST /api/messages` — the **web** host (e.g. `https://aesmsg.com`), not the API host. |
+| `AESMSG_WEBAPP_ORIGIN` | no | Single browser origin allowed to call this API cross-origin (the messaging web client). Registers a single-origin CORS allowlist: exactly this origin gets `Access-Control-Allow-Origin`; every other browser origin is denied (no CORS headers). Non-browser callers (native app, curl) are unaffected. **Soft config** with a sensible default `https://app.aesmsg.com` (never a boot gate); dev sets it to the local webapp origin (e.g. `http://localhost:3001`). |
 | `AESMSG_TRUST_PROXY` | **prod** | How much of the `X-Forwarded-For` chain to trust when deriving the client IP for the rate limiter. Behind a single same-host nginx this **must be `1`**. The per-IP limiter is the only abuse control, so proxy trust is opt-in and must match your topology — an over-broad value lets clients forge `X-Forwarded-For` and bypass the limiter. |
 | `AESMSG_METRICS_TOKEN` | no (recommended) | Bearer token that gates `GET /metrics` (aggregate ops metrics). **Unset ⇒ `/metrics` returns `404`** (disabled). Set to a `openssl rand -hex 32` value to enable scraping, and keep the path off the public vhost. See [`ops-runbook.md`](ops-runbook.md). |
 | `PORT` | no | Listen port (default `4000`). |
@@ -123,7 +124,7 @@ The policy is delivered two ways, both first-party and server-free:
 
 ### Backend coupling
 
-The only backend dependency is the CORS allowlist on `apps/api`: `AESMSG_WEBAPP_ORIGIN=https://app.aesmsg.com` (single-origin allowlist; every other origin stays denied). That change **lands in SP2** (sender flow), not in this foundation sub-project — noted here so this section is complete. The foundation sub-project issues **zero** network requests (keygen + wrap + unlock are all local), so nothing else is required to serve it.
+The only backend dependency is the CORS allowlist on `apps/api`: `AESMSG_WEBAPP_ORIGIN=https://app.aesmsg.com` (single-origin allowlist; every other origin stays denied). That change is **now landed** in `apps/api` (the SP2 sender-flow sub-project) — see the `AESMSG_WEBAPP_ORIGIN` row in the `apps/api` env table above. It remains **soft config with a default**, so a missing value never blocks API boot; dev sets it to the local webapp origin (`http://localhost:3001`). **No new `apps/webapp` env** is introduced: the sender flow talks only to `api.aesmsg.com` (already in the CSP `connect-src`) and mints the shareable link from the server response. The identity foundation still issues **zero** network requests (keygen + wrap + unlock are all local).
 
 ---
 

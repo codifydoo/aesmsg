@@ -4,8 +4,11 @@
 // key. Memory lifetime of any unwrapped key is the identity context's concern (Task 7).
 
 const DB_NAME = "aesmsg-webapp";
-const DB_VERSION = 1;
+// v2 adds the sent-links store (Task 4). The upgrade is purely additive + contains-guarded, so a
+// v1→v2 bump preserves the existing identity row and only creates the new store.
+const DB_VERSION = 2;
 export const IDENTITY_STORE = "identity";
+export const SENT_LINKS_STORE = "sent-links";
 
 let dbPromise: Promise<IDBDatabase> | null = null;
 
@@ -21,8 +24,13 @@ function openDB(): Promise<IDBDatabase> {
     const request = indexedDB.open(DB_NAME, DB_VERSION);
     request.onupgradeneeded = () => {
       const db = request.result;
+      // Both creations are `contains`-guarded and additive, so this runs for a fresh install AND a
+      // v1→v2 upgrade without touching (or dropping) an existing identity row.
       if (!db.objectStoreNames.contains(IDENTITY_STORE)) {
         db.createObjectStore(IDENTITY_STORE, { keyPath: "id" });
+      }
+      if (!db.objectStoreNames.contains(SENT_LINKS_STORE)) {
+        db.createObjectStore(SENT_LINKS_STORE, { keyPath: "id" });
       }
     };
     request.onsuccess = () => resolve(request.result);
@@ -43,18 +51,19 @@ function getDB(): Promise<IDBDatabase> {
 }
 
 /**
- * Run `fn` against the `identity` object store inside a single transaction and resolve with its
- * return value once the transaction commits. `mode` is the IndexedDB transaction mode
- * ("readonly" | "readwrite").
+ * Run `fn` against the named object store inside a single transaction and resolve with its return
+ * value once the transaction commits. `mode` is the IndexedDB transaction mode
+ * ("readonly" | "readwrite"). This is the general form; `withDB` binds it to the identity store.
  */
-export async function withDB<T>(
+export async function withStore<T>(
+  storeName: string,
   mode: IDBTransactionMode,
   fn: (store: IDBObjectStore) => IDBRequest<T> | Promise<T> | T,
 ): Promise<T> {
   const db = await getDB();
   return new Promise<T>((resolve, reject) => {
-    const tx = db.transaction(IDENTITY_STORE, mode);
-    const store = tx.objectStore(IDENTITY_STORE);
+    const tx = db.transaction(storeName, mode);
+    const store = tx.objectStore(storeName);
     let result: T;
     let settled = false;
 
@@ -88,6 +97,17 @@ export async function withDB<T>(
       if (!settled) reject(tx.error ?? new Error("IndexedDB transaction aborted"));
     };
   });
+}
+
+/**
+ * Run `fn` against the `identity` object store. Thin wrapper over `withStore` so `identity-store.ts`
+ * (and its tests) need no change after the v2 generalization.
+ */
+export function withDB<T>(
+  mode: IDBTransactionMode,
+  fn: (store: IDBObjectStore) => IDBRequest<T> | Promise<T> | T,
+): Promise<T> {
+  return withStore(IDENTITY_STORE, mode, fn);
 }
 
 /** Test helper: close and delete the whole database, resetting the lazy handle. */
