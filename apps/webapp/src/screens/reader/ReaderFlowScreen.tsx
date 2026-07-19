@@ -71,7 +71,7 @@ export function ReaderFlowScreen() {
   // object would re-run the resolve effect (and reset the phase) on every render. The serialized
   // query only changes when the actual params do.
   const search = searchParams.toString();
-  const { state: identityState, identity } = useIdentity();
+  const { state: identityState, identity, getAllPrivateKeysForDecrypt } = useIdentity();
 
   const [phase, setPhase] = useState<Phase>("resolving");
   const [linkId, setLinkId] = useState<string | null>(null);
@@ -104,7 +104,10 @@ export function ReaderFlowScreen() {
     inFlight.current = true;
     setPhase("opening");
     try {
-      const out = await openAndDecrypt(linkId, identity);
+      // Pass the ordered key set (active first, then RETAINED retired keys) so a link sealed to a
+      // pre-rotation key still opens. The identity gate above guarantees the active key is unlocked,
+      // so this set is non-empty. Exactly one open POST fires regardless of how many keys are tried.
+      const out = await openAndDecrypt(linkId, getAllPrivateKeysForDecrypt());
       setOutput(out);
       setPhase("decrypted");
     } catch (err) {
@@ -113,7 +116,7 @@ export function ReaderFlowScreen() {
     } finally {
       inFlight.current = false;
     }
-  }, [linkId, identity]);
+  }, [linkId, identity, getAllPrivateKeysForDecrypt]);
 
   // Identity gate — applied BEFORE the open POST (D3). Runs when the user has signalled intent
   // (wantsOpen) and the identity state settles. A locked recipient is routed to the inline unlock

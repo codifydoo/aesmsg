@@ -4,6 +4,7 @@ import { Logo, MaterialIcon } from "@aesmsg/ui";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { AutoLockController } from "@/src/settings/AutoLockController";
 import { isActive, NAV_ITEMS } from "./nav-items";
 
 function NavLinks({ pathname, onNavigate }: { pathname: string; onNavigate?: () => void }) {
@@ -38,6 +39,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-dvh">
+      {/* Idle auto-lock for the unlocked workspace (D8) — renders no DOM. */}
+      <AutoLockController />
       {/* Desktop side nav */}
       <aside className="hidden md:flex flex-col fixed left-0 top-0 h-dvh w-64 bg-surface-container-low border-r border-outline-variant py-8 z-40">
         <div className="px-6 mb-10">

@@ -1,4 +1,14 @@
-import { decodePayload, exportPublicKey, generateIdentity, open } from "@aesmsg/crypto";
+import {
+  decodePayload,
+  encodePayload,
+  exportPublicKey,
+  generateIdentity,
+  importPublicKey,
+  type MessageBindingContext,
+  open,
+  type PublicKeyString,
+  seal,
+} from "@aesmsg/crypto";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 // Mock the sent-links store so these tests exercise the seal/upload core without IndexedDB, and so
@@ -142,5 +152,85 @@ describe("createAndSeal", () => {
       maxOpens: 1,
     });
     expect(out.url).toBe(`https://aesmsg.com/l/${out.id}`);
+  });
+
+  it("ATTACHMENT round-trip: seals a single attachment inside the ciphertext (no plaintext in body)", async () => {
+    const recipient = await generateIdentity();
+    const recipientKey = exportPublicKey(recipient);
+    const getPosted = stubCreate();
+    const fileBytes = new Uint8Array([0xca, 0xfe, 0xba, 0xbe, 0x00, 0x01, 0x02]);
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+    const out = await createAndSeal({
+      recipientPublicKeyString: recipientKey,
+      message: "see attached",
+      expiresAt,
+      maxOpens: 1,
+      attachment: {
+        filename: "secret.pdf",
+        mimetype: "application/pdf",
+        bytes: fileBytes,
+        size: fileBytes.length,
+      },
+    });
+
+    const posted = getPosted();
+    if (!posted) throw new Error("fetch mock captured no body");
+    // The attachment bytes/filename live INSIDE the sealed ciphertext — never in the JSON scaffold.
+    expect(posted.ciphertext).not.toContain("secret.pdf");
+    const uploadKeys = Object.keys(JSON.parse(JSON.stringify(posted))).sort();
+    expect(uploadKeys).toEqual(["ciphertext", "expiresAt", "id", "maxOpens"]);
+
+    // Decrypt via the reader path (open + decodePayload under the v2 AAD) and recover the attachment.
+    const ciphertext = base64ToBytes(posted.ciphertext) as unknown as Parameters<typeof open>[0];
+    const plaintext = await open(ciphertext, recipient, {
+      linkId: out.id,
+      recipientPublicKey: recipientKey,
+      expiresAtMs: new Date(posted.expiresAt).getTime(),
+      maxOpens: posted.maxOpens,
+    });
+    const payload = decodePayload(plaintext);
+    expect(payload.text).toBe("see attached");
+    expect(payload.attachments).toHaveLength(1);
+    const att = payload.attachments[0];
+    if (!att) throw new Error("no attachment decoded");
+    expect(att.filename).toBe("secret.pdf");
+    expect(att.mimetype).toBe("application/pdf");
+    expect(Array.from(att.bytes)).toEqual(Array.from(fileBytes));
+  });
+
+  it("ATTACHMENT interop: a MOBILE-encoded attachment envelope decodes on the web reader path", async () => {
+    // Build the ciphertext the exact way apps/mobile does — the identical @aesmsg/crypto calls
+    // (encodePayload({text, attachments}) → seal under a v2 MessageBindingContext) — then decode it
+    // with the web reader's open() + decodePayload(), proving cross-surface attachment interop.
+    const recipient = await generateIdentity();
+    const recipientKey = exportPublicKey(recipient) as PublicKeyString;
+    const linkId = "MobileFixture01x";
+    const expiresAtMs = new Date("2027-01-01T00:00:00.000Z").getTime();
+    const maxOpens = 1;
+    const attBytes = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8]);
+
+    const plaintext = encodePayload({
+      text: "from mobile",
+      attachments: [{ filename: "photo.jpg", mimetype: "image/jpeg", bytes: attBytes }],
+    });
+    const context: MessageBindingContext = {
+      linkId,
+      recipientPublicKey: recipientKey,
+      expiresAtMs,
+      maxOpens,
+    };
+    // seal() takes the PARSED recipient public key (exactly like create-and-seal.ts); open() takes the
+    // recipient's keypair (exactly like the reader).
+    const ciphertext = await seal(plaintext, await importPublicKey(recipientKey), context);
+
+    // Web reader path.
+    const recovered = decodePayload(await open(ciphertext, recipient, context));
+    expect(recovered.text).toBe("from mobile");
+    const att = recovered.attachments[0];
+    if (!att) throw new Error("no attachment decoded");
+    expect(att.filename).toBe("photo.jpg");
+    expect(att.mimetype).toBe("image/jpeg");
+    expect(Array.from(att.bytes)).toEqual(Array.from(attBytes));
   });
 });

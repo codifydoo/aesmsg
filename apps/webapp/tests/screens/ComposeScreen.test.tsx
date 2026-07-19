@@ -16,6 +16,7 @@ import {
   updateContactKey,
 } from "@/src/contacts/contacts-store";
 import { __resetPendingRecipientForTests } from "@/src/create/compose-handoff";
+import { MAX_ATTACHMENT_BYTES } from "@/src/create/pick-attachment";
 import { __deleteDbForTests } from "@/src/identity/db";
 import { type IdentityContextValue, IdentityProvider } from "@/src/identity/identity-context";
 import { useIdentity } from "@/src/identity/use-identity";
@@ -241,6 +242,52 @@ describe("<ComposeScreen />", () => {
     expect(screen.getByText(pastedFp)).toBeVisible();
     expect(captured).toHaveLength(1);
     expect(captured[0]?.body).not.toContain("PASTE-RECOVERY");
+  });
+
+  it("seals a picked attachment — its bytes/name live in the ciphertext, never the request body", async () => {
+    const id = await generateIdentity();
+    const pk = exportPublicKey(id);
+    const captured = stubFetch();
+    render(<ComposeScreen />);
+
+    fireEvent.change(screen.getByLabelText(/recipient public key/i), { target: { value: pk } });
+    const file = new File([new Uint8Array([1, 2, 3, 4])], "report.pdf", {
+      type: "application/pdf",
+    });
+    fireEvent.change(screen.getByLabelText(/attach a file/i), { target: { files: [file] } });
+    // The selected-file chip appears once fileToAttachment resolves.
+    expect(await screen.findByText("report.pdf")).toBeVisible();
+
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: /encrypt & create link/i })).toBeEnabled(),
+    );
+    fireEvent.click(screen.getByRole("button", { name: /encrypt & create link/i }));
+
+    expect(await screen.findByRole("heading", { name: /link created/i })).toBeVisible();
+    expect(captured).toHaveLength(1);
+    // Filename is sealed inside the envelope — it must NOT appear in the uploaded JSON.
+    expect(captured[0]?.body).not.toContain("report.pdf");
+  });
+
+  it("blocks the seal when an over-cap file is picked (never sealed)", async () => {
+    const id = await generateIdentity();
+    const pk = exportPublicKey(id);
+    const captured = stubFetch();
+    render(<ComposeScreen />);
+
+    fireEvent.change(screen.getByLabelText(/recipient public key/i), { target: { value: pk } });
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: /encrypt & create link/i })).toBeEnabled(),
+    );
+
+    // A tiny file whose reported size is overridden above the cap → rejected by the metadata pre-check.
+    const file = new File([new Uint8Array([1, 2])], "big.bin", { type: "text/plain" });
+    Object.defineProperty(file, "size", { value: MAX_ATTACHMENT_BYTES + 1 });
+    fireEvent.change(screen.getByLabelText(/attach a file/i), { target: { files: [file] } });
+
+    expect(await screen.findByText(/over the 10 MB limit/i)).toBeVisible();
+    expect(screen.getByRole("button", { name: /encrypt & create link/i })).toBeDisabled();
+    expect(captured).toHaveLength(0);
   });
 });
 

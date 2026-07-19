@@ -121,12 +121,12 @@ export function SetPassphraseScreen() {
           <p className="text-label-sm text-on-surface-variant">
             Your passphrase derives the key that wraps your private key locally (Argon2id).
           </p>
+          <p className="text-label-sm text-on-surface-variant">
+            After you create your identity, export an encrypted backup so you can restore it if you
+            lose this device.
+          </p>
         </div>
       </div>
-
-      <p className="text-center text-label-sm text-on-surface-variant">
-        Encrypted backup export arrives in a later release.
-      </p>
     </div>
   );
 }

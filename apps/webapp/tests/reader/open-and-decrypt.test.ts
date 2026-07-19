@@ -66,7 +66,7 @@ describe("openAndDecrypt", () => {
     const rpk = exportPublicKey(rid);
     const fetchSpy = await stubSealedOpen({ recipientPk: rpk, text: "SP3-INTEROP" });
 
-    const out = await openAndDecrypt(ID, rid);
+    const out = await openAndDecrypt(ID, [rid]);
 
     expect(out.text).toBe("SP3-INTEROP");
     expect(out.attachments).toHaveLength(0);
@@ -77,15 +77,33 @@ describe("openAndDecrypt", () => {
     expect(fetchSpy).toHaveBeenCalledTimes(1);
   });
 
-  it("rejects with a DecryptionError when a DIFFERENT identity opens the ciphertext", async () => {
+  it("ROTATION: a link sealed to the OLD key opens for the set [new(active), old(retired)]", async () => {
+    const oldId = await generateIdentity();
+    const oldPk = exportPublicKey(oldId);
+    const newActive = await generateIdentity();
+    const fetchSpy = await stubSealedOpen({ recipientPk: oldPk, text: "legacy link" });
+
+    // The active key (tried first) can't open it; the retained retired key does.
+    const out = await openAndDecrypt(ID, [newActive, oldId]);
+    expect(out.text).toBe("legacy link");
+    // Fingerprint is of the key that actually decrypted (the OLD/retired key).
+    expect(out.recipientFingerprint).toBe(await fingerprint(oldPk));
+    // The fallback burns NO extra open — still exactly one POST despite two keys tried.
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it("rejects with a DecryptionError when NO key in the set can open the ciphertext", async () => {
     const rid = await generateIdentity();
     const rpk = exportPublicKey(rid);
-    await stubSealedOpen({ recipientPk: rpk, text: "for someone else" });
+    const fetchSpy = await stubSealedOpen({ recipientPk: rpk, text: "for someone else" });
 
-    const wrongIdentity = await generateIdentity();
-    const err = await openAndDecrypt(ID, wrongIdentity).catch((e) => e);
+    const wrong1 = await generateIdentity();
+    const wrong2 = await generateIdentity();
+    const err = await openAndDecrypt(ID, [wrong1, wrong2]).catch((e) => e);
     expect(err).toBeInstanceOf(Error);
     expect((err as Error).name).toBe("DecryptionError");
+    // A total decryption failure still consumed exactly one open (terminal, no retry).
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
   });
 
   it("surfaces attachments intact without crashing (bytes preserved)", async () => {
@@ -99,7 +117,7 @@ describe("openAndDecrypt", () => {
       ],
     });
 
-    const out = await openAndDecrypt(ID, rid);
+    const out = await openAndDecrypt(ID, [rid]);
     expect(out.text).toBe("hi");
     expect(out.attachments).toHaveLength(1);
     const attachment = out.attachments[0];
@@ -115,7 +133,7 @@ describe("openAndDecrypt", () => {
       }),
     );
     const identity = await generateIdentity();
-    const err = await openAndDecrypt(ID, identity).catch((e) => e);
+    const err = await openAndDecrypt(ID, [identity]).catch((e) => e);
     expect((err as { name?: string }).name).toBe("ApiError");
     expect((err as { status?: number }).status).toBe(410);
   });

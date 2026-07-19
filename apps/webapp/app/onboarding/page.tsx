@@ -1,10 +1,14 @@
+import { Suspense } from "react";
 import { AppShell } from "@/src/app-shell/AppShell";
-import { SetPassphraseScreen } from "@/src/screens/SetPassphraseScreen";
+import { OnboardingScreen } from "@/src/screens/OnboardingScreen";
 
 export default function OnboardingPage() {
   return (
     <AppShell>
-      <SetPassphraseScreen />
+      {/* Suspense is required around useSearchParams (the `?import=1` entry) under output:'export'. */}
+      <Suspense>
+        <OnboardingScreen />
+      </Suspense>
     </AppShell>
   );
 }

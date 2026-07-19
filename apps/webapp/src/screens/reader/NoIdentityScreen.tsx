@@ -44,8 +44,11 @@ export function NoIdentityScreen() {
         </div>
 
         <p className="text-label-sm text-on-surface-variant">
-          Already have a key backup? Importing an encrypted backup is coming soon — for now, open
-          this link on the device that holds your key.
+          Already have a key backup?{" "}
+          <Link href="/onboarding?import=1" className="text-primary hover:underline">
+            Restore it here
+          </Link>{" "}
+          — the file is decrypted on this device, nothing is uploaded.
         </p>
       </div>
     </div>

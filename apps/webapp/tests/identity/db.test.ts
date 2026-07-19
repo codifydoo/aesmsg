@@ -4,7 +4,9 @@ import {
   __resetDbForTests,
   CONTACTS_STORE,
   IDENTITY_STORE,
+  RETIRED_STORE,
   SENT_LINKS_STORE,
+  SETTINGS_STORE,
   withDB,
   withStore,
 } from "@/src/identity/db";
@@ -15,7 +17,9 @@ interface Row {
 }
 
 // Open the DB at an explicit version through the raw API (bypassing the app's lazy handle) so a test
-// can seed a v2 database, then re-open through the app path (v3) to exercise the additive upgrade.
+// can seed an older-version database, then re-open through the app path to exercise the additive
+// upgrade. Only stores that existed AT `version` are created, so a seed stays faithful to that era
+// (contacts arrived at v3; retired-keys + settings at v4, both created only via the app path).
 function openRaw(version: number): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
     const req = indexedDB.open("aesmsg-webapp", version);
@@ -26,6 +30,9 @@ function openRaw(version: number): Promise<IDBDatabase> {
       }
       if (!db.objectStoreNames.contains(SENT_LINKS_STORE)) {
         db.createObjectStore(SENT_LINKS_STORE, { keyPath: "id" });
+      }
+      if (version >= 3 && !db.objectStoreNames.contains(CONTACTS_STORE)) {
+        db.createObjectStore(CONTACTS_STORE, { keyPath: "id" });
       }
     };
     req.onsuccess = () => resolve(req.result);
@@ -126,5 +133,50 @@ describe("withDB (IndexedDB access)", () => {
     expect(identity?.publicKeyString).toBe("amk1:seed");
     const link = await getRaw<{ id: string; label: string }>(SENT_LINKS_STORE, "link-1");
     expect(link?.label).toBe("Client credentials");
+  });
+
+  it("migrates v3→v4: identity + sent-links + contacts survive; retired-keys + settings are created", async () => {
+    // Seed the SP4 world: a v3 DB with an identity, a sent-link, and a contact.
+    const v3 = await openRaw(3);
+    await putRaw(v3, IDENTITY_STORE, { id: "primary", publicKeyString: "amk1:seed" });
+    await putRaw(v3, SENT_LINKS_STORE, { id: "link-1", label: "Client credentials" });
+    await putRaw(v3, CONTACTS_STORE, { id: "c-1", label: "Alice" });
+    v3.close();
+
+    // Drop the cached handle so the app re-opens at v4, triggering the additive onupgradeneeded.
+    __resetDbForTests();
+
+    // The new retired-keys store now exists and round-trips an { id }-keyed record.
+    await withStore<IDBValidKey>(RETIRED_STORE, "readwrite", (store) =>
+      store.put({ id: "primary", entries: [], schemaVersion: 1 }),
+    );
+    const retired = await withStore<{ id: string; entries: unknown[] } | undefined>(
+      RETIRED_STORE,
+      "readonly",
+      (store) => store.get("primary"),
+    );
+    expect(retired).toEqual({ id: "primary", entries: [], schemaVersion: 1 });
+
+    // The new settings store now exists and round-trips an { id }-keyed record.
+    await withStore<IDBValidKey>(SETTINGS_STORE, "readwrite", (store) =>
+      store.put({ id: "primary", clipboardClearSeconds: 45 }),
+    );
+    const settings = await withStore<{ id: string; clipboardClearSeconds: number } | undefined>(
+      SETTINGS_STORE,
+      "readonly",
+      (store) => store.get("primary"),
+    );
+    expect(settings).toEqual({ id: "primary", clipboardClearSeconds: 45 });
+
+    // All three pre-existing rows were preserved across the v3→v4 upgrade.
+    const identity = await getRaw<{ id: string; publicKeyString: string }>(
+      IDENTITY_STORE,
+      "primary",
+    );
+    expect(identity?.publicKeyString).toBe("amk1:seed");
+    const link = await getRaw<{ id: string; label: string }>(SENT_LINKS_STORE, "link-1");
+    expect(link?.label).toBe("Client credentials");
+    const contact = await getRaw<{ id: string; label: string }>(CONTACTS_STORE, "c-1");
+    expect(contact?.label).toBe("Alice");
   });
 });

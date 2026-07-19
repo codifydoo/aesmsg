@@ -191,7 +191,12 @@ export async function deleteContact(id: string): Promise<void> {
   await withStore<undefined>(CONTACTS_STORE, "readwrite", (store) => store.delete(id));
 }
 
+/** Clear ALL saved contacts locally (part of the local wipe alongside the identity + other stores). */
+export async function clearContacts(): Promise<void> {
+  await withStore<undefined>(CONTACTS_STORE, "readwrite", (store) => store.clear());
+}
+
 /** Test-only: wipe the contacts store so each case starts from an empty directory. */
 export async function __resetContactsForTests(): Promise<void> {
-  await withStore<undefined>(CONTACTS_STORE, "readwrite", (store) => store.clear());
+  await clearContacts();
 }

@@ -4,13 +4,16 @@
 // key. Memory lifetime of any unwrapped key is the identity context's concern (Task 7).
 
 const DB_NAME = "aesmsg-webapp";
-// v2 adds the sent-links store; v3 adds the contacts store (SP4). Every store creation is additive +
-// contains-guarded, so a v1→v2 or v2→v3 bump preserves every existing row (identity + sent-links) and
-// only creates the new store.
-const DB_VERSION = 3;
+// v2 adds the sent-links store; v3 adds the contacts store (SP4); v4 adds the retired-keys store
+// (the multi-key-identity backing for rotation) and the settings store (on-device prefs, no key
+// material). Every store creation is additive + contains-guarded, so a v1→v2→v3→v4 bump preserves
+// every existing row (identity + sent-links + contacts) and only creates the new store(s).
+const DB_VERSION = 4;
 export const IDENTITY_STORE = "identity";
 export const SENT_LINKS_STORE = "sent-links";
 export const CONTACTS_STORE = "contacts";
+export const RETIRED_STORE = "retired-keys";
+export const SETTINGS_STORE = "settings";
 
 let dbPromise: Promise<IDBDatabase> | null = null;
 
@@ -27,7 +30,8 @@ function openDB(): Promise<IDBDatabase> {
     request.onupgradeneeded = () => {
       const db = request.result;
       // Every creation is `contains`-guarded and additive, so this runs for a fresh install AND any
-      // v1→v2→v3 upgrade without touching (or dropping) an existing identity or sent-links row.
+      // v1→v2→v3→v4 upgrade without touching (or dropping) an existing identity, sent-links, or
+      // contacts row.
       if (!db.objectStoreNames.contains(IDENTITY_STORE)) {
         db.createObjectStore(IDENTITY_STORE, { keyPath: "id" });
       }
@@ -36,6 +40,12 @@ function openDB(): Promise<IDBDatabase> {
       }
       if (!db.objectStoreNames.contains(CONTACTS_STORE)) {
         db.createObjectStore(CONTACTS_STORE, { keyPath: "id" });
+      }
+      if (!db.objectStoreNames.contains(RETIRED_STORE)) {
+        db.createObjectStore(RETIRED_STORE, { keyPath: "id" });
+      }
+      if (!db.objectStoreNames.contains(SETTINGS_STORE)) {
+        db.createObjectStore(SETTINGS_STORE, { keyPath: "id" });
       }
     };
     request.onsuccess = () => resolve(request.result);
@@ -91,6 +101,49 @@ export async function withStore<T>(
         reject(err);
         tx.abort();
       });
+
+    tx.oncomplete = () => {
+      if (!settled) resolve(result);
+    };
+    tx.onerror = () => {
+      if (!settled) reject(tx.error ?? new Error("IndexedDB transaction failed"));
+    };
+    tx.onabort = () => {
+      if (!settled) reject(tx.error ?? new Error("IndexedDB transaction aborted"));
+    };
+  });
+}
+
+/**
+ * Run `fn` against SEVERAL object stores inside ONE transaction and resolve once it commits. Used by
+ * key rotation (Task 4): a single `readwrite` transaction over `[IDENTITY_STORE, RETIRED_STORE]` that
+ * `put`s the new active identity AND the prepended retired blob together. IndexedDB commits a
+ * multi-store transaction all-or-nothing, so the rotation is "fully rotated OR unchanged, never
+ * bricked" — subsuming mobile's two-phase retired-first write ordering by transaction atomicity.
+ * `fn` issues its writes synchronously (fire-and-forget requests); the returned promise settles on
+ * the transaction's commit/abort, not on the individual requests.
+ */
+export async function withStores<T>(
+  storeNames: readonly string[],
+  mode: IDBTransactionMode,
+  fn: (stores: Record<string, IDBObjectStore>) => T,
+): Promise<T> {
+  const db = await getDB();
+  return new Promise<T>((resolve, reject) => {
+    const tx = db.transaction(storeNames as string[], mode);
+    const stores: Record<string, IDBObjectStore> = {};
+    for (const name of storeNames) stores[name] = tx.objectStore(name);
+    let result: T;
+    let settled = false;
+
+    try {
+      result = fn(stores);
+    } catch (err) {
+      settled = true;
+      reject(err);
+      tx.abort();
+      return;
+    }
 
     tx.oncomplete = () => {
       if (!settled) resolve(result);

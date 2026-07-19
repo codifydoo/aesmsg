@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Inter, JetBrains_Mono } from "next/font/google";
 import { IdentityProvider } from "@/src/identity/identity-context";
+import { SettingsProvider } from "@/src/settings/settings-context";
 import "./globals.css";
 
 // Fonts are self-hosted by next/font at build time (emitted under /_next/static/media),
@@ -34,7 +35,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${geist.variable} ${inter.variable} ${jetbrainsMono.variable}`}>
       <body>
-        <IdentityProvider>{children}</IdentityProvider>
+        {/* SettingsProvider wraps everything (inside AND outside AppShell) so the /settings screen and
+            the recipient reader both read the on-device prefs; it holds no key material. */}
+        <SettingsProvider>
+          <IdentityProvider>{children}</IdentityProvider>
+        </SettingsProvider>
       </body>
     </html>
   );

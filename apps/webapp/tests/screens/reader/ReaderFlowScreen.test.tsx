@@ -284,7 +284,7 @@ describe("<ReaderFlowScreen />", () => {
     expect(fetchSpy).not.toHaveBeenCalled();
   });
 
-  it("attachments present → the secure reader shows the calm notice and does not crash", async () => {
+  it("attachments present → the secure reader shows a real download control and does not crash", async () => {
     renderReader();
     await waitFor(() => expect(ctx.state).toBe("no_identity"));
     await act(async () => {
@@ -321,6 +321,8 @@ describe("<ReaderFlowScreen />", () => {
 
     await waitFor(() => expect(screen.getByText("with file")).toBeInTheDocument());
     expect(screen.getByText(/1 attachment/i)).toBeInTheDocument();
-    expect(screen.getByText(/isn't supported yet/i)).toBeInTheDocument();
+    expect(screen.getByText("secret.pdf")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /download/i })).toBeInTheDocument();
+    expect(screen.queryByText(/isn't supported yet/i)).not.toBeInTheDocument();
   });
 });

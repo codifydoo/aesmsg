@@ -5,7 +5,9 @@ import {
   __deleteDbForTests,
   CONTACTS_STORE,
   IDENTITY_STORE,
+  RETIRED_STORE,
   SENT_LINKS_STORE,
+  SETTINGS_STORE,
 } from "@/src/identity/db";
 import {
   IdentityContext,
@@ -213,9 +215,12 @@ describe("IdentityProvider state machine", () => {
     // wrapped-envelope record exists anywhere.
     const sweep = await sweepStorage();
     expect(sweep.dbNames).toEqual([DB_NAME]); // the only database is our webapp store
-    // Since SP2 the DB also carries the (empty here) sent-links store, and since SP4 the (empty
-    // here) contacts store, alongside identity.
-    expect(sweep.storeNames).toEqual([IDENTITY_STORE, SENT_LINKS_STORE, CONTACTS_STORE].sort());
+    // Since SP2 the DB also carries the (empty here) sent-links store, since SP4 the (empty here)
+    // contacts store, and since SP5 the (empty here) retired-keys + settings stores, alongside
+    // identity.
+    expect(sweep.storeNames).toEqual(
+      [IDENTITY_STORE, SENT_LINKS_STORE, CONTACTS_STORE, RETIRED_STORE, SETTINGS_STORE].sort(),
+    );
     expect(sweep.records).toHaveLength(1); // with exactly one identity record
     expect(sweep.localStorageKeys).toEqual([]); // and nothing leaked to Web Storage
     expect(sweep.sessionStorageKeys).toEqual([]);

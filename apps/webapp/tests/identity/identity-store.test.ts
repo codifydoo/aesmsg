@@ -4,7 +4,9 @@ import {
   __deleteDbForTests,
   CONTACTS_STORE,
   IDENTITY_STORE,
+  RETIRED_STORE,
   SENT_LINKS_STORE,
+  SETTINGS_STORE,
 } from "@/src/identity/db";
 import {
   deleteIdentity,
@@ -120,11 +122,14 @@ describe("identity-store", () => {
 
     // Sweep ALL storage — the only persisted identity state anywhere is the single record in the
     // identity IndexedDB store; Web Storage must be untouched. Since SP2 the DB also carries the
-    // (empty here) sent-links store, and since SP4 the (empty here) contacts store, so the store set
-    // is exactly [contacts, identity, sent-links].
+    // (empty here) sent-links store, since SP4 the (empty here) contacts store, and since SP5 the
+    // (empty here) retired-keys + settings stores, so the store set is exactly
+    // [contacts, identity, retired-keys, sent-links, settings].
     const sweep = await sweepStorage();
     expect(sweep.dbNames).toEqual([DB_NAME]);
-    expect(sweep.storeNames).toEqual([IDENTITY_STORE, SENT_LINKS_STORE, CONTACTS_STORE].sort());
+    expect(sweep.storeNames).toEqual(
+      [IDENTITY_STORE, SENT_LINKS_STORE, CONTACTS_STORE, RETIRED_STORE, SETTINGS_STORE].sort(),
+    );
     expect(sweep.records).toHaveLength(1);
     expect(sweep.localStorageKeys).toEqual([]);
     expect(sweep.sessionStorageKeys).toEqual([]);

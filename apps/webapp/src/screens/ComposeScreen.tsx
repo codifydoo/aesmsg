@@ -3,7 +3,7 @@
 import type { Fingerprint, PublicKeyString } from "@aesmsg/crypto";
 import { MaterialIcon } from "@aesmsg/ui";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { type ApiErrorKind, classifyApiError } from "@/src/api/client";
 import { PrimaryButton } from "@/src/components/PrimaryButton";
 import { TrustChip } from "@/src/components/TrustChip";
@@ -21,6 +21,7 @@ import {
   validateCustomExpiry,
 } from "@/src/create/compose-options";
 import { createAndSeal } from "@/src/create/create-and-seal";
+import { type ComposeAttachment, fileToAttachment, formatSize } from "@/src/create/pick-attachment";
 import { type RecipientValidation, validateRecipientKey } from "@/src/create/recipient";
 import { LinkCreatedScreen } from "@/src/screens/LinkCreatedScreen";
 import { RecipientPicker } from "@/src/screens/RecipientPicker";
@@ -82,6 +83,11 @@ export function ComposeScreen() {
     undefined,
   );
   const [message, setMessage] = useState("");
+  // Single attachment (FREE 10 MiB cap, D11). An over-cap pick sets `attachmentError` and does NOT
+  // store the file, so it can never reach the seal; the error also blocks submit until it is resolved.
+  const [attachment, setAttachment] = useState<ComposeAttachment | null>(null);
+  const [attachmentError, setAttachmentError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [label, setLabel] = useState("");
   const [expiryChoice, setExpiryChoice] = useState<ExpiryChoice>(DEFAULT_EXPIRY);
   const [customDate, setCustomDate] = useState("");
@@ -107,6 +113,26 @@ export function ComposeScreen() {
     const seeded = seedComposeRecipient(candidate);
     setPicked(seeded.recipient);
     setKeyChanged(seeded.keyChanged);
+  }
+
+  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    // Allow re-picking the same file later (a browser suppresses change if value is unchanged).
+    e.target.value = "";
+    if (!file) return;
+    const result = await fileToAttachment(file);
+    if (result.kind === "too-large") {
+      setAttachment(null);
+      setAttachmentError(`That file is over the 10 MB limit (${formatSize(result.size)}).`);
+      return;
+    }
+    setAttachmentError(null);
+    setAttachment(result.attachment);
+  }
+
+  function removeAttachment() {
+    setAttachment(null);
+    setAttachmentError(null);
   }
 
   function selectRecipientMode(mode: "paste" | "contact") {
@@ -157,7 +183,11 @@ export function ComposeScreen() {
         : null;
 
   const canSubmit =
-    activeRecipient !== null && keyChanged === undefined && expiryValid && !submitting;
+    activeRecipient !== null &&
+    keyChanged === undefined &&
+    expiryValid &&
+    attachmentError === null &&
+    !submitting;
 
   const expiryLabel = EXPIRY_PRESETS.find((p) => p.value === expiryChoice)?.label ?? "";
   const maxOpensLabel = MAX_OPENS_OPTIONS.find((o) => o.value === maxOpens)?.label ?? "";
@@ -170,6 +200,8 @@ export function ComposeScreen() {
     setPicked(null);
     setKeyChanged(undefined);
     setMessage("");
+    setAttachment(null);
+    setAttachmentError(null);
     setLabel("");
     setExpiryChoice(DEFAULT_EXPIRY);
     setCustomDate("");
@@ -196,6 +228,7 @@ export function ComposeScreen() {
         expiresAt,
         maxOpens,
         label: label.trim() || null,
+        attachment,
       });
       setCreated({
         url: out.url,
@@ -439,6 +472,55 @@ export function ComposeScreen() {
             rows={7}
             className="w-full resize-none rounded-lg border border-outline-variant bg-surface-container-lowest px-4 py-3 font-sans text-body-md text-on-surface transition-colors placeholder:text-on-surface-variant focus:border-primary focus:outline-none"
           />
+        </div>
+
+        {/* Attachment (single file, FREE 10 MiB cap). The bytes are sealed INSIDE the ciphertext —
+            never uploaded in the clear. */}
+        <div className="space-y-2">
+          <span className="block text-label-sm uppercase tracking-widest text-on-surface-variant">
+            Attachment <span className="normal-case tracking-normal">(optional, up to 10 MB)</span>
+          </span>
+          <input
+            ref={fileInputRef}
+            type="file"
+            aria-label="Attach a file"
+            className="hidden"
+            onChange={handleFileChange}
+          />
+          {attachment ? (
+            <div className="flex items-center justify-between gap-3 rounded-lg border border-outline-variant bg-surface-container-lowest p-3">
+              <div className="flex min-w-0 items-center gap-3">
+                <MaterialIcon name="description" size={20} className="shrink-0 text-primary" />
+                <span className="flex min-w-0 flex-col">
+                  <span className="truncate font-sans text-body-md text-on-surface">
+                    {attachment.filename}
+                  </span>
+                  <span className="text-label-sm text-on-surface-variant">
+                    {formatSize(attachment.size)}
+                  </span>
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={removeAttachment}
+                className="shrink-0 text-label-sm uppercase tracking-widest text-primary transition-colors hover:underline"
+              >
+                Remove
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="flex h-12 w-full items-center justify-center gap-2 rounded-lg border border-dashed border-outline-variant bg-surface-container-lowest font-medium text-on-surface-variant transition-colors hover:bg-surface-container-high hover:text-on-surface"
+            >
+              <MaterialIcon name="attach_file" size={18} />
+              Add file
+            </button>
+          )}
+          {attachmentError ? (
+            <span className="block text-label-sm text-error">{attachmentError}</span>
+          ) : null}
         </div>
 
         {/* Label (local-only) */}

@@ -8,6 +8,7 @@ import {
   seal,
 } from "@aesmsg/crypto";
 import { postMessage } from "@/src/api/client";
+import type { ComposeAttachment } from "@/src/create/pick-attachment";
 import { bytesToBase64 } from "@/src/lib/base64";
 import { generateLinkId } from "@/src/lib/link-id";
 import { recordSentLink } from "@/src/links/sent-links-store";
@@ -17,8 +18,10 @@ import { recordSentLink } from "@/src/links/sent-links-store";
 // → postMessage → recordSentLink) is INTEROP-CRITICAL: it produces byte-identical ciphertext to the
 // mobile app, so a webapp-sealed message opens on a mobile recipient's device and vice-versa.
 //
-// SP2 is text-only (D5): `encodePayload({ text, attachments: [] })`. The empty-attachments envelope
-// is byte-identical to what mobile emits for a text-only message; SP5 will feed a non-empty array.
+// Attachments (SP5, D11): `encodePayload({ text, attachments })` receives a single attachment (or an
+// EMPTY array — byte-identical to a mobile text-only message). Filenames/mimetypes/bytes live INSIDE
+// the AEAD-sealed envelope, so they never leak to the server. The seal sequence is otherwise
+// unchanged — the empty-vs-nonempty array is the only difference from a text-only send.
 
 export interface CreateAndSealInput {
   recipientPublicKeyString: string;
@@ -29,6 +32,8 @@ export interface CreateAndSealInput {
   maxOpens: number;
   /** Optional local-only label for the sender's link tracking (never uploaded). */
   label?: string | null;
+  /** Optional single attachment (FREE 10 MiB cap, enforced by the picker). Sealed into the envelope. */
+  attachment?: ComposeAttachment | null;
 }
 
 export interface CreateAndSealOutput {
@@ -69,8 +74,19 @@ export async function createAndSeal(
     maxOpens: input.maxOpens,
   };
 
-  // 5. Seal the v0x02 payload envelope (with its length-hiding pad trailer) — not raw text bytes.
-  const plaintext = encodePayload({ text: input.message, attachments: [] });
+  // 5. Seal the v0x02 payload envelope (with its length-hiding pad trailer) — not raw text bytes. A
+  //    single attachment is threaded in verbatim (filename/mimetype/bytes); no attachment → an empty
+  //    array (byte-identical to a mobile text-only message).
+  const attachments = input.attachment
+    ? [
+        {
+          filename: input.attachment.filename,
+          mimetype: input.attachment.mimetype,
+          bytes: input.attachment.bytes,
+        },
+      ]
+    : [];
+  const plaintext = encodePayload({ text: input.message, attachments });
 
   // 6. seal cross-checks that `recipient` and `context.recipientPublicKey` name the same X25519 key
   //    (throws RecipientMismatchError otherwise) and returns the wire ciphertext blob.
