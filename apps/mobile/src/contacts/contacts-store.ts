@@ -4,6 +4,7 @@ import {
   type PublicKeyString,
 } from "@aesmsg/crypto";
 import { getEncryptedStore } from "@/src/storage";
+import { MAX_LABEL_LEN } from "@/src/contacts/label";
 
 // Real, encrypted-at-rest contact directory. Mirrors apps/web/src/lib/contacts-store.ts API +
 // error types VERBATIM, swapping web's IndexedDB backend for the single shared on-device
@@ -15,7 +16,6 @@ import { getEncryptedStore } from "@/src/storage";
 // compose seal path treats a picked contact exactly like a pasted key.
 
 export const CONTACTS_BLOB_KEY = "contacts";
-const MAX_LABEL_LEN = 80;
 
 export interface ContactRecord {
   id: string; // stable uuid; survives key rotation
