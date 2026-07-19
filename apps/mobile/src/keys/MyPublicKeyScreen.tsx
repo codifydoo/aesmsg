@@ -7,7 +7,17 @@ import {
 import * as Clipboard from "expo-clipboard";
 import { useEffect, useState } from "react";
 import { Pressable, Share, StyleSheet, Text, View } from "react-native";
-import { AppBar, Avatar, BottomSheet, Button, Card, ListRow, Screen } from "@/src/components";
+import {
+  AppBar,
+  Avatar,
+  BottomSheet,
+  Button,
+  Card,
+  Field,
+  ListRow,
+  Screen,
+} from "@/src/components";
+import { isValidLabel } from "@/src/contacts/label";
 import { IDENTITY_LABEL, keyDerivedInitials } from "@/src/identity/identity-display";
 import { colors, fonts, type } from "@/src/theme";
 import { formatFingerprintLines } from "./fingerprint-lines";
@@ -25,15 +35,21 @@ export interface MyPublicKeyScreenProps {
   onExportBackup?: () => void;
   /** Start the Rotate Key flow (42). Wired by KeysFlow to the identity context's rotate action. */
   onRotateKey?: () => void;
+  /** Open the contact-card export: prompts for a display name, then builds + shares the .aesmsg file.
+   *  Wired by KeysFlow. */
+  onExportContactCard?: (displayName: string) => void;
 }
 
 export function MyPublicKeyScreen({
   publicKeyString,
   onExportBackup,
   onRotateKey,
+  onExportContactCard,
 }: MyPublicKeyScreenProps) {
   const [fp, setFp] = useState<Fingerprint | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [cardSheetOpen, setCardSheetOpen] = useState(false);
+  const [cardName, setCardName] = useState("");
 
   useEffect(() => {
     let cancelled = false;
@@ -99,6 +115,16 @@ export function MyPublicKeyScreen({
         >
           Copy public key
         </Button>
+        <Button
+          kind="outline"
+          icon="cloud_upload"
+          onPress={() => {
+            setCardName("");
+            setCardSheetOpen(true);
+          }}
+        >
+          Export contact card
+        </Button>
         <Pressable
           onPress={onExportBackup}
           accessibilityRole="button"
@@ -109,6 +135,26 @@ export function MyPublicKeyScreen({
           <Text style={styles.linkText}>Export encrypted backup</Text>
         </Pressable>
       </View>
+
+      <BottomSheet visible={cardSheetOpen} onClose={() => setCardSheetOpen(false)}>
+        <View style={styles.sheet}>
+          <Text style={styles.sheetTitle}>Export contact card</Text>
+          <Text style={styles.sheetBody}>
+            Choose the name your contact should see. They can edit it when they import your card.
+          </Text>
+          <Field placeholder="e.g. Elena Rodriguez" value={cardName} onChangeText={setCardName} />
+          <Button
+            icon="ios_share"
+            disabled={!isValidLabel(cardName)}
+            onPress={() => {
+              setCardSheetOpen(false);
+              onExportContactCard?.(cardName.trim());
+            }}
+          >
+            Create contact card
+          </Button>
+        </View>
+      </BottomSheet>
 
       {/* Overflow menu (the AppBar's more_horiz) — key maintenance. Rotate key (design screen 42) is
           now WIRED to real rotation (roadmap 2.4 / PG-1): it generates a new active keypair, retires
@@ -159,4 +205,7 @@ const styles = StyleSheet.create({
   footer: { gap: 10, paddingHorizontal: 22, paddingTop: 8 },
   link: { alignSelf: "center", paddingVertical: 4 },
   linkText: { color: colors.primary, fontSize: 14, fontWeight: "500" },
+  sheet: { padding: 20, gap: 12 },
+  sheetTitle: { fontSize: 17, fontWeight: "600", color: colors.onSurface },
+  sheetBody: { fontSize: 13, lineHeight: 20, color: colors.onSurfaceVariant },
 });
