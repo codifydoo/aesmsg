@@ -263,4 +263,19 @@ describe("importContactCard", () => {
       reason: "invalid-file",
     });
   });
+
+  it("returns error/invalid-file (never rejects) when the picker itself throws", async () => {
+    const getDocumentAsync = vi.fn(async () => {
+      throw new Error("permission denied");
+    });
+    const readAsStringAsync = vi.fn(async () => "");
+    const throwingDeps = {
+      DocumentPicker: { getDocumentAsync },
+      FileSystem: { EncodingType: { UTF8: "utf8" }, readAsStringAsync },
+    };
+    await expect(importContactCard(throwingDeps)).resolves.toEqual({
+      kind: "error",
+      reason: "invalid-file",
+    });
+  });
 });

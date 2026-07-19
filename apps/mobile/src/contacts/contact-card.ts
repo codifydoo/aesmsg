@@ -186,11 +186,22 @@ export type ImportCardOutcome =
   | { readonly kind: "canceled" }
   | { readonly kind: "error"; readonly reason: "invalid-file" | "wrong-file-type" };
 
+/**
+ * Total: this function NEVER rejects — every path resolves to an ImportCardOutcome. A native picker
+ * throw (permission denial / OS interruption) is non-fatal and surfaces as { kind: "error",
+ * reason: "invalid-file" }, exactly like a read/parse failure, rather than rejecting into the
+ * fire-and-forget `void handleImportPick()` caller in ContactsFlow.tsx.
+ */
 export async function importContactCard(deps: {
   DocumentPicker: DocumentPickerLike;
   FileSystem: Pick<FileSystemLike, "EncodingType" | "readAsStringAsync">;
 }): Promise<ImportCardOutcome> {
-  const picked = await pickCardFile(deps);
+  let picked: PickedCard | null;
+  try {
+    picked = await pickCardFile(deps);
+  } catch {
+    return { kind: "error", reason: "invalid-file" };
+  }
   if (!picked) return { kind: "canceled" };
   let text: string;
   try {
