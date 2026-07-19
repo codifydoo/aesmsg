@@ -97,6 +97,8 @@ pnpm --filter @aesmsg/webapp build   # -> apps/webapp/out/ (static files, no Nod
 
 `build` runs `next build` then `node scripts/inject-csp.mjs` (the CSP baker, below). Serve `apps/webapp/out/` as static files on Sproobo static hosting — there is **no** Node process to run and **no** env, database, Redis, or salt for `apps/webapp` itself.
 
+Pre-deploy, run `pnpm --filter @aesmsg/webapp test:e2e` (the true cross-process Playwright e2e — seal → link → open → decrypt → revoke → gone against a locally booted `apps/api`); it does its own build against a local API origin, so re-run `pnpm --filter @aesmsg/webapp build` afterwards to restore the shipping origin before serving `out/`.
+
 `NEXT_PUBLIC_AESMSG_API_ORIGIN` is a **build-time** variable (default `https://api.aesmsg.com`). Set it before `build` only if the API origin differs; it is baked into the CSP `connect-src` at build time.
 
 ### Reader route — the `/l/<id>` host rewrite (REQUIRED)

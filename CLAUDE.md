@@ -56,13 +56,13 @@ These are non-negotiable and any UI work must preserve them:
 
 This repo holds **both design artifacts and a code workspace**.
 
-- `all_design_screens/` is the design source of truth — Tailwind-CDN HTML mockups + PNGs + the `DESIGN.md` token file. **Do not edit these as if they were app source.** They are reference material that gets migrated into typed React components (the native mobile app is the primary target; `packages/ui/` + `apps/web/` for the web surface).
+- `all_design_screens/` is the design source of truth — Tailwind-CDN HTML mockups + PNGs + the `DESIGN.md` token file. **Do not edit these as if they were app source.** They are reference material that gets migrated into typed React components (the native mobile app is the primary target; `packages/ui/` + `apps/webapp/` for the messaging web client, `apps/web/` for the marketing surface).
 - The code workspace is a **pnpm monorepo** at the repo root. Use `pnpm` (never `npm`/`yarn`). Node 22 LTS; `corepack enable` to get pnpm 10.
 
 Roadmap phases per the PRD (current reality: an advanced prototype approaching a **mobile** launch):
 
 - **Phase 0 (done):** monorepo + tooling skeleton, design artifacts intact.
-- **Phase 1 (current):** the product is **native-app-first**. `@aesmsg/crypto` (HPKE) is implemented; the zero-knowledge backend (`apps/api` + `apps/worker` over `@aesmsg/server-store`) is implemented; the mobile app carries the real sender/recipient/identity flows plus aesmsg Pro. An earlier browser-based web MVP was built and then **deliberately dismantled** — `apps/web` is now a static marketing + deep-link-bouncer site with no crypto or DB.
+- **Phase 1 (current):** the product is **native-app-first**. `@aesmsg/crypto` (HPKE) is implemented; the zero-knowledge backend (`apps/api` + `apps/worker` over `@aesmsg/server-store`) is implemented; the mobile app carries the real sender/recipient/identity flows plus aesmsg Pro. An earlier browser-based web MVP was built and then **deliberately dismantled** — `apps/web` is now a static marketing + deep-link-bouncer site with no crypto or DB. A browser client has since returned as a **separate, additive** surface: `apps/webapp` (a static-export messaging web client at `app.aesmsg.com`) — it does **not** weaken the native-first posture or the dismantled `apps/web`'s invariants (all its crypto is client-side `@aesmsg/crypto`; the backend stays zero-knowledge).
 - **Phase 2:** trust-flow hardening (real key rotation, key-changed detection, per-decrypt biometric gate), backend auth/abuse controls, secure file attachments.
 - **Phase 3:** enterprise (admin controls, metadata-only audit logs, team contact directories).
 
@@ -70,12 +70,13 @@ Roadmap phases per the PRD (current reality: an advanced prototype approaching a
 
 **Workspace layout:**
 
-The product ships as **three deployables** (`apps/api`, `apps/worker`, `apps/web`) plus the native `apps/mobile` client. See [`docs/deploy.md`](docs/deploy.md).
+The product ships as **four deployables** (`apps/api`, `apps/worker`, `apps/web`, `apps/webapp`) plus the native `apps/mobile` client. See [`docs/deploy.md`](docs/deploy.md).
 
-- `apps/mobile/` — **React Native / Expo** app (iOS + Android). The real product surface: onboarding, identity, compose/seal, links, contacts + fingerprint verification, secure reader, key export/rotate/wipe, settings, and aesmsg Pro. **All crypto, identity, and key handling live here** (via `@aesmsg/crypto`).
-- `apps/api/` — standalone **Fastify** service hosting the message API (`/api/messages/*`) over `@aesmsg/server-store`. Consumed by the native app only; the web app does not call it. Prod env: `DATABASE_URL`, `REDIS_URL`, `RATE_LIMIT_IP_SALT` (≥ 32 bytes, boot-required), `AESMSG_PUBLIC_LINK_ORIGIN`, `AESMSG_TRUST_PROXY=1` behind nginx. Fails closed at boot if these are missing in production.
+- `apps/mobile/` — **React Native / Expo** app (iOS + Android). The real product surface: onboarding, identity, compose/seal, links, contacts + fingerprint verification, secure reader, key export/rotate/wipe, settings, and aesmsg Pro. The **mobile app's crypto, identity, and key handling all run through `@aesmsg/crypto`** (as does `apps/webapp`'s — each surface has its own standalone identity).
+- `apps/api/` — standalone **Fastify** service hosting the message API (`/api/messages/*`) over `@aesmsg/server-store`. Consumed by the native app **and the `apps/webapp` web client** (single-origin CORS allowlist via `AESMSG_WEBAPP_ORIGIN`); the marketing site (`apps/web`) does not call it. Prod env: `DATABASE_URL`, `REDIS_URL`, `RATE_LIMIT_IP_SALT` (≥ 32 bytes, boot-required), `AESMSG_PUBLIC_LINK_ORIGIN`, `AESMSG_TRUST_PROXY=1` behind nginx. Fails closed at boot if these are missing in production.
 - `apps/worker/` — headless **expiry sweeper** that purges expired/revoked ciphertext from Postgres. Env: `DATABASE_URL` only.
-- `apps/web/` — Next.js 16+ (app router, TS strict, Tailwind 4, Turbopack). Static **presentational** site: marketing landing at `/` plus a deep-link bouncer at `/l/[id]` that hands off to the native app. **No API routes, no crypto, no identity/keys, no DB — needs no backend env.** See `apps/web/AGENTS.md` — Next.js 16 has breaking changes from earlier major versions; consult `node_modules/next/dist/docs/` before relying on training-data Next.js patterns.
+- `apps/web/` — Next.js 16+ (app router, TS strict, Tailwind 4, Turbopack). Static **presentational** site: marketing landing at `/` plus a deep-link bouncer at `/l/[id]` that hands off to the native app (or, secondarily, to `apps/webapp`). **No API routes, no crypto, no identity/keys, no DB — needs no backend env.** See `apps/web/AGENTS.md` — Next.js 16 has breaking changes from earlier major versions; consult `node_modules/next/dist/docs/` before relying on training-data Next.js patterns.
+- `apps/webapp/` — Next.js 16 **static export** (`output: 'export'`) messaging **web client** served at `https://app.aesmsg.com`. Unlike `apps/web`, it carries the real sender/recipient/identity flows — compose/seal, links + revoke, contacts + verification, secure reader, rotation/backup/settings — but **all crypto runs client-side** (via `@aesmsg/crypto`), the private key is Argon2id-wrapped in IndexedDB and unwrapped in memory only, and there is **no server runtime, no SSR touching key material, and no DB**. It talks only to `api.aesmsg.com`. A true cross-process Playwright e2e (`pnpm --filter @aesmsg/webapp test:e2e`, excluded from `pnpm test`) exercises seal → link → open → decrypt → revoke → gone against a locally booted `apps/api`. See `apps/webapp/AGENTS.md` — the same Next.js 16 caveat applies.
 - `packages/crypto/` — trust-critical encryption primitives (**implemented**): HPKE via `@hpke/core` (with a pure-JS `@noble/curves` fallback for Hermes), Argon2id key-wrap, fingerprints (`AM-` prefix), wire/payload formats. **No DOM, no network, no storage.**
 - `packages/server-store/` — `LinkMetadataStore` / `CiphertextStore` / `RateLimitStore` interfaces with memory, Postgres, and Redis backends, plus the advisory-locked SQL migration runner (`pnpm migrate`). Node-only.
 - `packages/design-tokens/` — single source for `DESIGN.md` values. Tailwind 4 `@theme` block + TS exports. The web app consumes it via `@import "@aesmsg/design-tokens/theme.css"`; never hardcode colors or spacing in components.
@@ -99,7 +100,7 @@ The product ships as **three deployables** (`apps/api`, `apps/worker`, `apps/web
 
 - **Package manager:** pnpm 10. **Test runner:** Vitest. **Lint+format:** Biome 2 (replaces ESLint + Prettier — there is no ESLint config in this repo on purpose).
 - **Crypto:** HPKE (RFC 9180) via `@hpke/core` — DHKEM(X25519, HKDF-SHA256) + AES-256-GCM AEAD + HKDF-SHA256 KDF. **Implemented** in `@aesmsg/crypto`.
-- **Hosting:** Sproobo (Postgres + Redis + object storage). All three deployables deploy there — see [`docs/deploy.md`](docs/deploy.md). **Never propose Vercel.**
+- **Hosting:** Sproobo (Postgres + Redis + object storage). All four deployables deploy there — see [`docs/deploy.md`](docs/deploy.md). **Never propose Vercel.**
 - **License:** Apache 2.0.
 
 ## Layout

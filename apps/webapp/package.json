@@ -8,6 +8,7 @@
     "build": "next build && node scripts/inject-csp.mjs",
     "start": "next start --port 3001",
     "check:csp": "node scripts/verify-csp.mjs",
+    "test:e2e": "node scripts/e2e.mjs",
     "typecheck": "tsc --noEmit",
     "test": "vitest run --config vitest.config.ts",
     "test:watch": "vitest --config vitest.config.ts",
