@@ -48,6 +48,20 @@ const config: ExpoConfig = {
   },
   android: {
     package: "com.aesmsg.app",
+    // expo-screen-capture's manifest declares READ_MEDIA_IMAGES (API 33 only) purely for its
+    // screenshot DETECTION api (addScreenshotListener, which reads the captured image out of the
+    // media store). aesmsg uses PREVENTION only — FLAG_SECURE via preventScreenCaptureAsync, see
+    // src/shield/ — and never reads the media store, so the permission is dead weight in the merged
+    // manifest. Google Play's Photo and Video Permissions policy rejects apps that declare it
+    // without needing it: it rejected 1.0.1 / versionCode 9 on Jul 24 2026. Attachments are picked
+    // through the system pickers (launchImageLibraryAsync → Android photo picker, and
+    // DocumentPicker), neither of which needs a media permission. READ_MEDIA_VIDEO is not currently
+    // declared by any dependency; it is blocked too so a future dep cannot silently reintroduce the
+    // same violation.
+    blockedPermissions: [
+      "android.permission.READ_MEDIA_IMAGES",
+      "android.permission.READ_MEDIA_VIDEO",
+    ],
     adaptiveIcon: {
       foregroundImage: "./assets/adaptive-icon.png",
       backgroundColor: "#141218",
@@ -96,6 +110,13 @@ const config: ExpoConfig = {
           "aesmsg attaches a photo only after encrypting it on this device. Photos are never uploaded in the clear.",
         cameraPermission:
           "aesmsg attaches a photo only after encrypting it on this device. Photos are never uploaded in the clear.",
+        // Same rule as expo-camera's recordAudioAndroid below: this plugin adds RECORD_AUDIO to the
+        // Android manifest unless microphonePermission is explicitly `false` (it assumes video
+        // capture). aesmsg only ever picks or photographs a still image — it never records audio, so
+        // shipping the microphone permission is both untrue to the product and an unnecessary
+        // sensitive-permission flag on a listing Google is already scrutinising. Passing `false`
+        // makes the plugin BLOCK the permission, so no other package can reintroduce it either.
+        microphonePermission: false,
       },
     ],
     // In-app purchases (StoreKit 2 / Play Billing) for aesmsg Pro. Talks directly to the stores —
