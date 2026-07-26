@@ -105,6 +105,24 @@ function parseBody(raw: string): RequestBody | null {
   return p as RequestBody;
 }
 
+// True when a no-body route's request carried nothing meaningful (BE-2 / R3).
+//
+// Two shapes count as "no body". The plain empty string is the obvious one. The second exists
+// because expo/fetch's Android native layer CANNOT issue a bodyless POST: OkHttp requires a
+// non-null body for POST/PUT/PATCH, so it substitutes `byteArrayOf(0)` — a single NUL byte, not an
+// empty array (expo android/src/main/java/expo/modules/fetch/NativeRequest.kt). iOS (URLSession)
+// sends no body at all. Rejecting that lone NUL 400s every /open and /revoke the Android app
+// issues, which the mobile reader surfaces as the opaque "not a valid secure message" terminal —
+// i.e. the Android client could never open or revoke a link.
+//
+// SECURITY: this is not a weakening of the no-body rule. A single NUL byte carries no data, no
+// token, and no open-consumption proof; any body with content — including one that merely STARTS
+// with a NUL — is still rejected, so the guard against a route growing a body-borne parameter
+// (and against a proof arriving anywhere but a header) is intact.
+function isEmptyBody(raw: string): boolean {
+  return raw.length === 0 || raw === "\0";
+}
+
 function decodeBase64(s: string): Uint8Array | null {
   if (!BASE64_REGEX.test(s)) return null;
   try {
@@ -242,7 +260,7 @@ export function createOpenMessageHandler(deps: OpenMessageHandlerDeps) {
 
     // /open takes NO request body. Reject any (BE-2 / R3). A future open-consumption proof will
     // arrive via a request HEADER, not the body, so an empty body is the only valid shape.
-    if ((await request.text()).length > 0) return jsonError(400, "bad_request");
+    if (!isEmptyBody(await request.text())) return jsonError(400, "bad_request");
 
     const ip = hashIp(getClientIp(request));
     const count = await deps.rateLimit.incrementAndGet(
@@ -365,7 +383,7 @@ export function createRevokeMessageHandler(deps: RevokeMessageHandlerDeps) {
 
     // /revoke takes NO request body (BE-2 / R3). The revocation token (BE-1) rides a request HEADER,
     // not the body — so reject any body and never grow a body token slot.
-    if ((await request.text()).length > 0) return jsonError(400, "bad_request");
+    if (!isEmptyBody(await request.text())) return jsonError(400, "bad_request");
 
     const ip = hashIp(getClientIp(request));
     const count = await deps.rateLimit.incrementAndGet(

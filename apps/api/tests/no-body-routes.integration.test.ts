@@ -61,4 +61,41 @@ describe("BE-2 — no-body routes reject bodies", () => {
     const res = await app.inject({ method: "POST", url: `/api/messages/${id}/open` });
     expect(res.statusCode).toBe(410);
   });
+
+  // expo/fetch's Android native layer cannot send a bodyless POST: OkHttp requires a non-null body,
+  // so it substitutes `byteArrayOf(0)` — a single NUL byte, NOT an empty array (expo
+  // android/.../fetch/NativeRequest.kt). iOS sends no body at all. Treating that lone NUL as a real
+  // body 400s every open/revoke issued by the Android app, which the mobile reader surfaces as the
+  // "not a valid secure message" terminal. The byte carries no data and no open-consumption proof,
+  // so it is accepted as "no body" — the guard against a MEANINGFUL body (BE-2 / R3) is unchanged.
+  const androidEmptyBody = Buffer.from([0]);
+
+  it("POST /open with the single NUL byte expo/fetch sends on Android reaches the handler", async () => {
+    const res = await app.inject({
+      method: "POST",
+      url: `/api/messages/${id}/open`,
+      payload: androidEmptyBody,
+    });
+    expect(res.statusCode).toBe(410);
+  });
+
+  it("POST /revoke with the single NUL byte expo/fetch sends on Android still works", async () => {
+    const res = await app.inject({
+      method: "POST",
+      url: `/api/messages/${id}/revoke`,
+      payload: androidEmptyBody,
+    });
+    expect(res.statusCode).toBe(200);
+    expect(res.json()).toEqual({ id, status: "revoked" });
+  });
+
+  it("POST /open still rejects a body that merely STARTS with a NUL byte", async () => {
+    const res = await app.inject({
+      method: "POST",
+      url: `/api/messages/${id}/open`,
+      payload: Buffer.from([0, 0x7b, 0x7d]), // "\0{}"
+    });
+    expect(res.statusCode).toBe(400);
+    expect(res.json()).toEqual({ error: "bad_request" });
+  });
 });
