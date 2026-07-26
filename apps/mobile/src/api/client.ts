@@ -249,6 +249,20 @@ export async function getMessage(
   );
 }
 
+// An EXPLICIT empty body for the two POSTs the server requires to be body-less (/open, /revoke).
+//
+// Omitting `body` entirely looks equivalent but is not. Expo's fetch (expo/fetch, installed over
+// RN's on SDK 56) cannot issue a body-less POST on Android: OkHttp requires a non-null body for
+// POST/PUT/PATCH, so the native layer substitutes `byteArrayOf(0)` — a single NUL byte, NOT an
+// empty array (expo android/src/main/java/expo/modules/fetch/NativeRequest.kt). iOS (URLSession)
+// sends no body at all. The server rejects any non-empty body on these routes (BE-2 / R3), so the
+// stray NUL made every Android open/revoke 400 — surfacing to the recipient as the opaque
+// "not a valid secure message" terminal, i.e. the Android app could never open or revoke a link.
+// Passing "" keeps expo/fetch on its caller-supplied body path and sends a true zero-length body on
+// both platforms. (The API also tolerates the lone NUL now, so already-shipped builds work — this
+// is the fix at the source; do not "simplify" it away.)
+const NO_BODY = "";
+
 // Consumes one open and returns the base64 ciphertext.
 export async function openMessage(
   id: string,
@@ -256,7 +270,7 @@ export async function openMessage(
 ): Promise<OpenMessageResponse> {
   return fetchJson(
     `/api/messages/${encodeURIComponent(id)}/open`,
-    { method: "POST" },
+    { method: "POST", body: NO_BODY },
     validateOpenMessageResponse,
     options,
   );
@@ -357,7 +371,7 @@ export async function revokeLink(
   if (revocationToken) headers[REVOCATION_TOKEN_HEADER] = revocationToken;
   const res = await requestWithTimeout(
     `/api/messages/${encodeURIComponent(id)}/revoke`,
-    { method: "POST", headers },
+    { method: "POST", headers, body: NO_BODY },
     options,
   );
   if (!res.ok) throw new ApiError(res.status);
