@@ -114,6 +114,21 @@ describe("api-client", () => {
         status: 429,
       });
     });
+
+    // The server rejects ANY body on /open (BE-2 / R3). Omitting `body` looks correct but is not:
+    // expo/fetch's Android native layer cannot issue a bodyless POST — OkHttp demands a non-null
+    // body, so it substitutes a single NUL byte, which the server reads as a real body and 400s.
+    // That 400 classifies as "invalid" and shows the recipient "not a valid secure message", so the
+    // Android app could never open a link. Passing an EXPLICIT empty body keeps expo/fetch on its
+    // caller-supplied path and sends a true Content-Length: 0 on both platforms.
+    it("sends an explicit empty body so Android's fetch cannot substitute a NUL byte", async () => {
+      const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue(jsonResponse(OPEN_RESPONSE));
+
+      await openMessage("abcdefghijkl0123");
+
+      const [, init] = fetchSpy.mock.calls[0] ?? [];
+      expect(init?.body).toBe("");
+    });
   });
 
   describe("postMessage", () => {

@@ -133,6 +133,21 @@ describe("revokeLink", () => {
     vi.spyOn(globalThis, "fetch").mockResolvedValue(jsonResponse({}, 400));
     await expect(revokeLink("../../etc")).rejects.toMatchObject({ name: "ApiError", status: 400 });
   });
+
+  // /revoke rejects ANY body (BE-2 / R3), and expo/fetch's Android native layer cannot issue a
+  // bodyless POST — OkHttp demands a non-null body, so it substitutes a single NUL byte that the
+  // server reads as a real body and 400s. An EXPLICIT empty body keeps expo/fetch on its
+  // caller-supplied path, so revoke works from Android as well as iOS. Mirrors openMessage.
+  it("sends an explicit empty body so Android's fetch cannot substitute a NUL byte", async () => {
+    const fetchSpy = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValue(jsonResponse({ id: "aaaaaaaaaaaaaaaa", status: "revoked" }));
+
+    await revokeLink("aaaaaaaaaaaaaaaa", "revtok-secret-123");
+
+    const [, init] = fetchSpy.mock.calls[0] ?? [];
+    expect(init?.body).toBe("");
+  });
 });
 
 describe("api-client reliability (FE-3) — links + revoke", () => {
