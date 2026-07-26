@@ -52,6 +52,17 @@ const nextConfig: NextConfig = {
         source: "/:path*",
         headers: securityHeaders,
       },
+      // Apple requires the Universal Links association file to be served as application/json.
+      // It has NO file extension, so Next's static handler types it application/octet-stream —
+      // and `X-Content-Type-Options: nosniff` above forbids sniffing past that. assetlinks.json
+      // needs no such rule: its .json extension is typed correctly already.
+      //
+      // The file must also be reachable WITHOUT a redirect (Apple and Google both refuse to
+      // follow one) on every host the app claims in associatedDomains / intentFilters.
+      {
+        source: "/.well-known/apple-app-site-association",
+        headers: [{ key: "Content-Type", value: "application/json" }],
+      },
     ];
   },
 };
