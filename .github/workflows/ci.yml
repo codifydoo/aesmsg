@@ -2,8 +2,8 @@
 #
 # Three jobs, split by what a suite needs to run:
 #   * main        — lint + typecheck + every node-only unit suite.
-#   * browser     — Vitest browser-mode suites (Playwright Chromium): web, ui,
-#                   and packages/crypto's browser config.
+#   * browser     — Vitest browser-mode suites (Playwright Chromium): web, webapp,
+#                   ui, and packages/crypto's browser config.
 #   * integration — packages/server-store's Pg + Redis suites against real
 #                   postgres:17 / redis:7 services (they skip silently otherwise).
 #
@@ -28,12 +28,18 @@ jobs:
   # ---------------------------------------------------------------------------
   # Lint, typecheck, and all node-only unit suites.
   #
-  # `pnpm -r test` would also drag in the browser-mode suites (web, ui,
+  # `pnpm -r test` would also drag in the browser-mode suites (web, webapp, ui,
   # crypto's test:browser) which need Playwright — those run in the `browser`
   # job instead. crypto is excluded here and its node-only `test:node` runs
   # explicitly so nothing is silently skipped. server-store runs here too; its
   # Pg/Redis suites self-skip without TEST_* env and are covered by the
   # `integration` job below.
+  #
+  # EVERY browser-mode workspace must appear in BOTH lists — excluded here and
+  # included in `browser` below. apps/webapp was added (Jul 2026) without either,
+  # so this job tried to launch Chromium it has no browser for ("Executable
+  # doesn't exist at .../chrome-headless-shell") and failed on main from that
+  # commit onward, while webapp's own suite never ran anywhere.
   # ---------------------------------------------------------------------------
   main:
     name: lint + typecheck + unit
@@ -54,7 +60,7 @@ jobs:
       - name: Typecheck
         run: pnpm typecheck
       - name: Unit tests (node-only workspaces)
-        run: pnpm --filter='!web' --filter='!@aesmsg/ui' --filter='!@aesmsg/crypto' -r test
+        run: pnpm --filter='!web' --filter='!@aesmsg/webapp' --filter='!@aesmsg/ui' --filter='!@aesmsg/crypto' -r test
       - name: Crypto unit tests (node backend)
         run: pnpm --filter @aesmsg/crypto test:node
 
@@ -79,8 +85,8 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: Install Playwright Chromium
         run: pnpm --filter web exec playwright install --with-deps chromium
-      - name: Web + UI browser tests
-        run: pnpm --filter=web --filter=@aesmsg/ui -r test
+      - name: Web + webapp + UI browser tests
+        run: pnpm --filter=web --filter=@aesmsg/webapp --filter=@aesmsg/ui -r test
       - name: Crypto browser tests
         run: pnpm --filter @aesmsg/crypto test:browser
 
