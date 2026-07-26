@@ -3,7 +3,26 @@ import type { ExpoConfig } from "expo/config";
 // aesmsg host the universal/app links resolve to. The mobile app intercepts
 // https://<host>/l/:id; if the app isn't installed the link opens the web INSTALL page
 // (the static bouncer), not a web reader.
-const AESMSG_HOST = process.env.AESMSG_HOST ?? "aesmsg.com";
+//
+// This is `www.aesmsg.com`, NOT the bare apex. Both Apple and Google fetch the association file
+// (/.well-known/apple-app-site-association, /.well-known/assetlinks.json) directly and refuse to
+// follow redirects, and the apex 308-redirects everything to www — so a link minted on the apex can
+// never be verified by either OS. www serves both files at 200 with no redirect.
+const AESMSG_HOST = process.env.AESMSG_HOST ?? "www.aesmsg.com";
+
+// The apex, kept ONLY for links minted before the switch to www.
+//
+// iOS: claimed alongside www. Apple resolves each associated domain independently, so a domain
+// whose AASA is unreachable costs nothing — and legacy apex links deep-link again the moment the
+// apex is restored, with no new build.
+//
+// Android: deliberately NOT claimed. Before Android 12, App Links verification is all-or-nothing
+// across every autoVerify host — one unverifiable host and the app is the default handler for NONE
+// of them. Claiming the (currently unreachable) apex would therefore risk breaking www too on
+// Android 11 and below. Add it back here once the apex durably serves assetlinks.json without a
+// redirect. Until then, legacy apex links on Android land on the web bouncer, whose "Open in app"
+// button hands off via the aesmsg:// scheme — one extra tap, never a dead end.
+const AESMSG_LEGACY_HOST = "aesmsg.com";
 
 // The API base URL the app talks to — the standalone Fastify service. Override with
 // AESMSG_API_BASE_URL for a local dev build (e.g. http://localhost:4000).
@@ -30,7 +49,7 @@ const config: ExpoConfig = {
   ios: {
     bundleIdentifier: "com.aesmsg.app",
     supportsTablet: false,
-    associatedDomains: [`applinks:${AESMSG_HOST}`],
+    associatedDomains: [`applinks:${AESMSG_HOST}`, `applinks:${AESMSG_LEGACY_HOST}`],
     infoPlist: {
       // Standard AES-256-GCM + X25519/HPKE, used solely for the app's own secure
       // messaging → qualifies for the US encryption export exemption. `false` means
