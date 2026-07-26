@@ -37,8 +37,13 @@ export interface BuildServerOptions {
 const MAX_BODY_BYTES = 38 * 1024 * 1024;
 
 export function buildServer(options: BuildServerOptions = {}): FastifyInstance {
+  // Origin of the shareable /l/:id link returned at create. Defaults to the www host, NOT the bare
+  // apex: Apple and Google both fetch the app-association files without following redirects, and the
+  // apex 308s to www, so an apex-minted link can never be verified as a universal/app link. Keep this
+  // in sync with apps/webapp's SECURE_LINK_ORIGIN (its legacy fallback reproduces this default) and
+  // apps/mobile's AESMSG_HOST.
   const publicLinkOrigin =
-    options.publicLinkOrigin ?? process.env.AESMSG_PUBLIC_LINK_ORIGIN ?? "https://aesmsg.com";
+    options.publicLinkOrigin ?? process.env.AESMSG_PUBLIC_LINK_ORIGIN ?? "https://www.aesmsg.com";
   // Single browser origin allowed to call this API cross-origin (mirrors the publicLinkOrigin
   // env-with-sensible-default pattern exactly). Soft config: a missing value never blocks boot.
   const webappOrigin =

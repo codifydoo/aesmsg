@@ -16,14 +16,14 @@
       "autoIncrement": true,
       "env": {
         "AESMSG_API_BASE_URL": "https://api.aesmsg.com",
-        "AESMSG_HOST": "aesmsg.com"
+        "AESMSG_HOST": "www.aesmsg.com"
       }
     },
     "production": {
       "autoIncrement": true,
       "env": {
         "AESMSG_API_BASE_URL": "https://api.aesmsg.com",
-        "AESMSG_HOST": "aesmsg.com"
+        "AESMSG_HOST": "www.aesmsg.com"
       }
     }
   },
