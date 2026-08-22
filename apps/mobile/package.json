@@ -55,7 +55,7 @@
     "babel-preset-expo": "~56.0.14",
     "expo-modules-autolinking": "~56.0.14",
     "typescript": "^5.7.0",
-    "vitest": "^3.2.4"
+    "vitest": "^3.2.6"
   },
   "expo": {
     "install": {
