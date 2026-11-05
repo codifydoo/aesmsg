@@ -15,7 +15,7 @@
   "dependencies": {
     "@aesmsg/design-tokens": "workspace:*",
     "@aesmsg/ui": "workspace:*",
-    "next": "16.2.6",
+    "next": "16.4.5",
     "react": "19.2.3",
     "react-dom": "19.2.3"
   },
@@ -29,11 +29,11 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^4.7.0",
-    "@vitest/browser": "^3.2.4",
-    "@vitest/coverage-v8": "^3.2.4",
+    "@vitest/browser": "^3.2.7",
+    "@vitest/coverage-v8": "^3.2.7",
     "playwright": "^1.59.1",
     "tailwindcss": "^4",
     "typescript": "^5",
-    "vitest": "^3.2.4"
+    "vitest": "^3.2.7"
   }
 }
