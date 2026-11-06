@@ -1,3 +1,9 @@
 packages:
   - "apps/*"
   - "packages/*"
+
+# tinypool <2.1.2 has critical RCE advisories (GHSA-5gmw-xhrv-c9v3, GHSA-85c8-ppgw-ccpr)
+# and vitest 3.x still pins tinypool ^1.1.1, which has no patched release.
+# tinypool 2.x only drops Node 18 support. Remove once vitest moves off tinypool 1.x.
+overrides:
+  tinypool: ^2.1.2
